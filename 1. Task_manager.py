@@ -62,10 +62,13 @@ def zobrazit_ukoly():
 #je potřeba, aby uživatel viděl všechny uložené úkoly
 #při výběru neexistujícího úkolu byl upozorněn.
 #program pokračuje dál nabídkou hlavního menu
+
 # def odstraneni_ukolu():
 #     zobrazit_ukoly()
 #     cislo_ukolu = int(input("Zadej číslo úkolu, který chceš odstranit:"))
-#     if cislo_ukolu 
+
+#     while true:
+#       if cislo_ukolu in vsechny_ukoly
 
 #     vsechny_ukoly.remove()
 # hlavni_menu()    
