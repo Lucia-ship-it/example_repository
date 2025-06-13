@@ -46,7 +46,7 @@ def pridat_ukol():
     vsechny_ukoly.append(novy_ukol)
     print(f"Úkol {nazev} byl přidán.\n")
 
-# zadanie 3 - zobrazeni ukolu
+# zadanie 2 - zobrazeni ukolu
 # ok    zobrazi vsechny ukoly v seznamu
 # ok    pak zobrazeni hlavniho menu
 # ok    platí volba 2 v hlavním menu
@@ -55,6 +55,21 @@ def zobrazit_ukoly():
     print(vsechny_ukoly)
     print("\n\n")
     hlavni_menu()
+
+#zadanie 3 - odstranit ukol
+# umožnit zadat číslo úkolu, který chce odstranit
+#platí volba 3 v hlavním menu
+#je potřeba, aby uživatel viděl všechny uložené úkoly
+#při výběru neexistujícího úkolu byl upozorněn.
+#program pokračuje dál nabídkou hlavního menu
+# def odstraneni_ukolu():
+#     zobrazit_ukoly()
+#     cislo_ukolu = int(input("Zadej číslo úkolu, který chceš odstranit:"))
+#     if cislo_ukolu 
+
+#     vsechny_ukoly.remove()
+# hlavni_menu()    
+
 
 # zadanie 1 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
@@ -78,6 +93,7 @@ def hlavni_menu():
             zobrazit_ukoly()
         elif vyber_cisla == 3:
             print("Odstranění úkolu")
+            odstraneni_ukolu()
             break
         elif vyber_cisla == 4:
             print("Naviděnou")
