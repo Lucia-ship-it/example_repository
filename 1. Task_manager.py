@@ -4,7 +4,7 @@
 
 
 
-#ZADANIE 2 - def pridat_ukol():
+#ZADANIE 1 - def pridat_ukol():
 # ok    volba 1 v hlavním menu
 # ok    nazev a popis noveho ukolu
 # ok    ulozit do zoznamu
@@ -57,24 +57,48 @@ def zobrazit_ukoly():
     hlavni_menu()
 
 #zadanie 3 - odstranit ukol
-# umožnit zadat číslo úkolu, který chce odstranit
-#platí volba 3 v hlavním menu
-#je potřeba, aby uživatel viděl všechny uložené úkoly
+# ok    umožnit zadat číslo úkolu, který chce odstranit
+# ok    platí volba 3 v hlavním menu
+# ok    je potřeba, aby uživatel viděl všechny uložené úkoly
 #při výběru neexistujícího úkolu byl upozorněn.
 #program pokračuje dál nabídkou hlavního menu
 
-# def odstraneni_ukolu():
-#     zobrazit_ukoly()
-#     cislo_ukolu = int(input("Zadej číslo úkolu, který chceš odstranit:"))
+# UPRAVENY NADEJNY KOD: osetrit neciselne vstupy...:/
 
-#     while true:
-#       if cislo_ukolu in vsechny_ukoly
+# zoznam = ["jablko","hruska","kiwi","melon"]
+# print(zoznam)
 
-#     vsechny_ukoly.remove()
+# #enumetare priradi k polozkam zoznamu cislo
+
+# for i, uloha in enumerate(zoznam, start=1):
+#     print(f"{i}. {uloha}")
+
+# while True:
+#     vyber_cisla = int(input("Zadej číslo úkolu, který chceš smazat"))
+
+#     index_cisla=vyber_cisla - 1
+#     print(zoznam[index_cisla])
+
+#     if 0 <= index_cisla < len(zoznam):
+#         odstraneny_index = zoznam.pop(index_cisla)
+#         print(f"Úkol číslo {vyber_cisla} byl smazán")
+#         print(f"Smazali jste: {odstraneny_index}.")
+#         break
+#     else:
+#         print(f"V zozname sa nenachází úkol číslo {vyber_cisla}. Vyber číslo ze seznamu.")
+        
+# print(zoznam)
+
 # hlavni_menu()    
 
+#volba 4 v hlavnim menu
+#program se ukončí
 
-# zadanie 1 - Funkce hlavního menu
+def konec_programu():
+    print("\nKonec programu.")
+
+
+# zadanie 0 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
 # ok    neplatnou volbu, program ho upozorní a nechá uživatele opakovat znovu volbu.
 
@@ -99,8 +123,9 @@ def hlavni_menu():
             odstraneni_ukolu()
             break
         elif vyber_cisla == 4:
-            print("Naviděnou")
-            break
+            konec_programu()
+            print("Naviděnou!")
+            exit()
         else:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             print(vyber_cisla)
