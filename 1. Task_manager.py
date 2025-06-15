@@ -4,12 +4,12 @@
 
 
 
-#ZADANIE 1 - def pridat_ukol():
+# ok    ZADANIE 1 - def pridat_ukol():
 # ok    volba 1 v hlavním menu
 # ok    nazev a popis noveho ukolu
 # ok    ulozit do zoznamu
 # ok    zobrazit nabidku hlavneho menu
-#!!!! osetrit zadanie prazdneho vstupu
+# ok    osetrit zadanie prazdneho vstupu
 
 vsechny_ukoly = [
     {
@@ -37,8 +37,6 @@ def pridat_ukol():
         else:
             break
 
-
-
     novy_ukol = {
         "název" : nazev,
         "popis" : popis
@@ -46,7 +44,7 @@ def pridat_ukol():
     vsechny_ukoly.append(novy_ukol)
     print(f"Úkol {nazev} byl přidán.\n")
 
-# zadanie 2 - zobrazeni ukolu
+# ok    zadanie 2 - zobrazeni ukolu
 # ok    zobrazi vsechny ukoly v seznamu
 # ok    pak zobrazeni hlavniho menu
 # ok    platí volba 2 v hlavním menu
@@ -61,9 +59,10 @@ def zobrazit_ukoly():
 # ok    platí volba 3 v hlavním menu
 # ok    je potřeba, aby uživatel viděl všechny uložené úkoly
 #při výběru neexistujícího úkolu byl upozorněn.
-#program pokračuje dál nabídkou hlavního menu
+# ok    program pokračuje dál nabídkou hlavního menu
 
 # UPRAVENY NADEJNY KOD: osetrit neciselne vstupy...:/
+# def odstranit_ukol():
 
 # zoznam = ["jablko","hruska","kiwi","melon"]
 # print(zoznam)
@@ -87,18 +86,20 @@ def zobrazit_ukoly():
 #     else:
 #         print(f"V zozname sa nenachází úkol číslo {vyber_cisla}. Vyber číslo ze seznamu.")
         
-# print(zoznam)
+#   print(zoznam)
 
-# hlavni_menu()    
+#   hlavni_menu()    
 
 #volba 4 v hlavnim menu
 #program se ukončí
 
 def konec_programu():
     print("\nKonec programu.")
+    print("Naviděnou!")
+    exit()
 
 
-# zadanie 0 - Funkce hlavního menu
+# ok    zadanie 0 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
 # ok    neplatnou volbu, program ho upozorní a nechá uživatele opakovat znovu volbu.
 
@@ -120,12 +121,9 @@ def hlavni_menu():
             zobrazit_ukoly()
         elif vyber_cisla == 3:
             print("Odstranění úkolu")
-            odstraneni_ukolu()
-            break
+            odstranit_ukol()
         elif vyber_cisla == 4:
             konec_programu()
-            print("Naviděnou!")
-            exit()
         else:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             print(vyber_cisla)
