@@ -129,7 +129,7 @@ def hlavni_menu():
                 vyber_cisla=int(input("Vyberte možnost (1-4):"))
         except ValueError:
             print("\nZadejte správnou hodnotu.")
-            # vyber_cisla=int(input("Vyberte možnost (1-4):"))
+        
             
 
 hlavni_menu()
