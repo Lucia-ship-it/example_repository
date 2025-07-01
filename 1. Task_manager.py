@@ -108,20 +108,24 @@ def hlavni_menu():
     print("4. Konec programu")
     
     while True:
-        vyber_cisla=int(input("Vyberte možnost (1-4):"))
-        #print(vyber_cisla)
-        if vyber_cisla == 1:
-            print("\nPřidání nového úkolu")
-            pridat_ukol()
-        elif vyber_cisla == 2:
-            print("\nZobrazení všech úkolů")
-            zobrazit_ukoly()
-        elif vyber_cisla == 3:
-            print("\nOdstranění úkolu")
-            odstranit_ukol()
-        elif vyber_cisla == 4:
-            konec_programu()
-        else:
+        try:
+            vyber_cisla=int(input("Vyberte možnost (1-4):"))
+            #print(vyber_cisla)
+            if vyber_cisla == 1:
+                print("\nPřidání nového úkolu")
+                pridat_ukol()
+            elif vyber_cisla == 2:
+                print("\nZobrazení všech úkolů")
+                zobrazit_ukoly()
+            elif vyber_cisla == 3:
+                print("\nOdstranění úkolu")
+                odstranit_ukol()
+            elif vyber_cisla == 4:
+                konec_programu()
+            else:
+                print("\nZadejte správnou hodnotu.")
+                vyber_cisla=int(input("Vyberte možnost (1-4):"))
+        except:
             print("\nZadejte správnou hodnotu.")
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             
