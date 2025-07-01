@@ -109,7 +109,7 @@ def hlavni_menu():
     
     while True:
         vyber_cisla=int(input("Vyberte možnost (1-4):"))
-        print(vyber_cisla)
+        #print(vyber_cisla)
         if vyber_cisla == 1:
             print("\nPřidání nového úkolu")
             pridat_ukol()
@@ -122,8 +122,9 @@ def hlavni_menu():
         elif vyber_cisla == 4:
             konec_programu()
         else:
+            print("\nZadejte správnou hodnotu.")
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
-            print(vyber_cisla)
+            
 
 hlavni_menu()
 
