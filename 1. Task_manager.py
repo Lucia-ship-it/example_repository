@@ -90,10 +90,10 @@ def odstranit_ukol():
 # ok    volba 4 v hlavnim menu
 # ok    program se ukončí
 
-def konec_programu():
-    print("\nKonec programu.")
-    print("Naviděnou!")
-    exit()
+# def konec_programu():
+    # print("\nKonec programu.")
+    # print("Naviděnou!")
+    # exit()
 
 
 # ok    zadanie 0 - Funkce hlavního menu
@@ -111,23 +111,25 @@ def hlavni_menu():
         try:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             #print(vyber_cisla)
-            if vyber_cisla == 1:
+            if vyber_cisla ==1:
                 print("\nPřidání nového úkolu")
                 pridat_ukol()
-            elif vyber_cisla == 2:
-                print("\nZobrazení všech úkolů")
+            elif vyber_cisla ==2:
+                print("\nZobrazení všech úkolů:")
                 zobrazit_ukoly()
-            elif vyber_cisla == 3:
+            elif vyber_cisla ==3:
                 print("\nOdstranění úkolu")
                 odstranit_ukol()
-            elif vyber_cisla == 4:
-                konec_programu()
+            elif vyber_cisla ==4:
+                # konec_programu()
+                print("\nKonec programu.\n")
+                exit()
             else:
                 print("\nZadejte správnou hodnotu.")
                 vyber_cisla=int(input("Vyberte možnost (1-4):"))
-        except:
+        except ValueError:
             print("\nZadejte správnou hodnotu.")
-            vyber_cisla=int(input("Vyberte možnost (1-4):"))
+            # vyber_cisla=int(input("Vyberte možnost (1-4):"))
             
 
 hlavni_menu()
