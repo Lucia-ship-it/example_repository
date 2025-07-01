@@ -1,9 +1,3 @@
-# ZADANIE OBECNE
-# Každá funkce má svůj specifický úkol
-# Úkoly budou ukládány do seznamu ukoly = []
-
-
-
 # ok    ZADANIE 1 - def pridat_ukol():
 # ok    volba 1 v hlavním menu
 # ok    nazev a popis noveho ukolu
@@ -53,7 +47,7 @@ def zobrazit_ukoly():
     for i, uloha in enumerate(vsechny_ukoly, start=1):
         print(f"{i}.{uloha}")
 
-    print("\n\n")
+    print("\n")
     hlavni_menu()
 
 # ok    zadanie 3 - odstranit ukol
@@ -64,13 +58,13 @@ def zobrazit_ukoly():
 # ok    program pokračuje dál nabídkou hlavního menu
 
 def odstranit_ukol():
-    #print(vsechny_ukoly)
+    print("\nZobrazení všech úkolů:")
     for i, uloha in enumerate(vsechny_ukoly, start=1):
         print(f"{i}.{uloha}")
 
     while True:
         try:
-            vyber_cisla = int(input("\nZadej číslo úkolu, který chceš smazat: \n"))
+            vyber_cisla = int(input("\nZadejte číslo úkolu, který chcete smazat: \n"))
             index_cisla = vyber_cisla - 1 
         
             if 0 <= index_cisla <= len(vsechny_ukoly):
@@ -86,16 +80,6 @@ def odstranit_ukol():
             
     hlavni_menu()    
 
-# ok    zadanie 4 - konec
-# ok    volba 4 v hlavnim menu
-# ok    program se ukončí
-
-# def konec_programu():
-    # print("\nKonec programu.")
-    # print("Naviděnou!")
-    # exit()
-
-
 # ok    zadanie 0 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
 # ok    neplatnou volbu, program ho upozorní a nechá uživatele opakovat znovu volbu.
@@ -110,7 +94,6 @@ def hlavni_menu():
     while True:
         try:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
-            #print(vyber_cisla)
             if vyber_cisla ==1:
                 print("\nPřidání nového úkolu")
                 pridat_ukol()
@@ -118,10 +101,9 @@ def hlavni_menu():
                 print("\nZobrazení všech úkolů:")
                 zobrazit_ukoly()
             elif vyber_cisla ==3:
-                print("\nOdstranění úkolu")
+                print("\nVolba: Odstranění úkolu")
                 odstranit_ukol()
             elif vyber_cisla ==4:
-                # konec_programu()
                 print("\nKonec programu.\n")
                 exit()
             else:
@@ -131,6 +113,5 @@ def hlavni_menu():
             print("\nZadejte správnou hodnotu.")
         
             
-
 hlavni_menu()
 
