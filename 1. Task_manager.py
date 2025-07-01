@@ -18,22 +18,22 @@ vsechny_ukoly = [
      },
     {
         "nazev" : "priklad_2",
-        "popis" : "priklad_2"
+        "popis" : "popis_2"
     }
 ]
 
 def pridat_ukol():
-    while True:
-        nazev = input("\nZadejte název úkolu: ").strip()
+    while True: #osetrenie prazdneho vstupu
+        nazev = input("\tZadejte název úkolu: ").strip() 
         if nazev == "":
-            print("Vyplnenie je povinné")
+            print("\nVyplnenie je povinné\n")
         else:
             break
 
     while True:
-        popis = input("Zadejte popis úkolu: ").strip()
+        popis = input("\tZadejte popis úkolu: ").strip()
         if popis == "":
-            print("Vyplnenie je povinné")
+            print("\nVyplnenie je povinné\n")
         else:
             break
 
@@ -50,7 +50,9 @@ def pridat_ukol():
 # ok    platí volba 2 v hlavním menu
 
 def zobrazit_ukoly():
-    print(vsechny_ukoly)
+    for i, uloha in enumerate(vsechny_ukoly, start=1):
+        print(f"{i}.{uloha}")
+
     print("\n\n")
     hlavni_menu()
 
@@ -64,7 +66,7 @@ def zobrazit_ukoly():
 def odstranit_ukol():
     #print(vsechny_ukoly)
     for i, uloha in enumerate(vsechny_ukoly, start=1):
-        print(f"{i}. {uloha}")
+        print(f"{i}.{uloha}")
 
     while True:
         try:
