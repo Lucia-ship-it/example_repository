@@ -62,23 +62,24 @@ def odstranit_ukol():
     for i, uloha in enumerate(vsechny_ukoly, start=1):
         print(f"{i}.{uloha}")
 
-    while True:
+    while len(vsechny_ukoly) > 0:
         try:
             vyber_cisla = int(input("\nZadejte číslo úkolu, který chcete smazat: \n"))
             index_cisla = vyber_cisla - 1 
+
         
-            if 0 <= index_cisla <= len(vsechny_ukoly):
+            if 0 <= index_cisla < len(vsechny_ukoly):
                 odstraneny_index = vsechny_ukoly.pop(index_cisla) 
                 
                 print(f"Úkol číslo {vyber_cisla} byl smazán")
                 print(f"Smazali jste: {odstraneny_index}.\n")
-                break
             else:
-                print(f"V zozname sa nenachází úkol číslo {vyber_cisla}. Vyber číslo ze seznamu.")
+                print(f"\nV zozname sa nenachází úkol číslo {vyber_cisla}. Vyber číslo ze seznamu.")
         except ValueError:
             print("Zadej číselný vstup!")
-            
-    hlavni_menu()    
+    
+    print("Zoznam je prázny, budete presmerovaný na hlavne menu\n")       
+    hlavni_menu()      
 
 # ok    zadanie 0 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
