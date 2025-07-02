@@ -67,18 +67,20 @@ def odstranit_ukol():
             vyber_cisla = int(input("\nZadejte číslo úkolu, který chcete smazat: \n"))
             index_cisla = vyber_cisla - 1 
 
-        
             if 0 <= index_cisla < len(vsechny_ukoly):
                 odstraneny_index = vsechny_ukoly.pop(index_cisla) 
                 
                 print(f"Úkol číslo {vyber_cisla} byl smazán")
                 print(f"Smazali jste: {odstraneny_index}.\n")
+                break
             else:
                 print(f"\nV zozname sa nenachází úkol číslo {vyber_cisla}. Vyber číslo ze seznamu.")
         except ValueError:
             print("Zadej číselný vstup!")
-    
-    print("Zoznam je prázny, budete presmerovaný na hlavne menu\n")       
+    while len(vsechny_ukoly) == 0:
+        print("Zoznam je prázny, budete presmerovaný na hlavne menu.\n")  
+        break
+
     hlavni_menu()      
 
 # ok    zadanie 0 - Funkce hlavního menu
