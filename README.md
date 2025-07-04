@@ -1,4 +1,6 @@
 # example_repository
- 1. Zadanie uloh: Task manader
-    Vaším úkolem je doplnit prázdné funkce pro správu úkolů ve správném pořadí. Program by měl umožnit přidávat, zobrazovat a odstraňovat úkoly.
-    Úkoly budou ukládány do seznamu ukoly = []
+ Tento repozitár obsahuje dokumenty k Projektom z Engeto akadémie.
+
+Projekt číslo 1 -> program s funkciami ku kontrole sa nachádza v dokumente pod názvom: 1. Task_manager.py
+ 
+# Projekt číslo 2 -> program je v procese tvorby a bude v dokumente: Task_manager_SQL.py
