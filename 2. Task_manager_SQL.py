@@ -56,13 +56,27 @@ if conn:
     print("Tabulka 'Ukoly' je k dispozici.")
     conn.close()
 
+# pridanie prvých záznamov do tabulky - vzorove ukoly
+def pridani_vzorovych_ukolu(conn):
+    '''pridanie 2 vzorovych uloh'''
+    try:
+        cursor = conn.cursor()
+        ulohy_exmpl = [
+            ("úkol 1", "popis k úkolu 1", "probíhá"),
+            ("úkol 2", "popis k úkolu 2", "hotovo")
+        ]
+        cursor.executemany(
+            "INSERT INTO Ukoly (nazev, popis, stav) VALUES (%s, %s, %s)",
+            ulohy_exmpl
+        )
+        cursor.commit()
+        print("✅ Přidání vzorových úkolů proběhlo v pořádku")
+    except pymysql.MySQLError as err:
+        print(f"Chyba při přidávání knih: {err}")
+    finally:
+        cursor.close()
 
 
-# v dalsej funkcii osetrit vstupy na stav ENUM 'nezahájeno', 'hotovo', 'probíhá'
-#  pozor na chybz
-# if input != 'nezahájeno' or input != 'hotovo' or input != 'probíhá':
-# Táto podmienka bude vždy pravdivá, pretože vstup sa nikdy nemôže rovnať všetkým trom naraz. Treba to prepísať.
-# urobit premennu a moznosti ako list.
 
 # 3. hlavni_menu() – Hlavní nabídka
 #  - Zobrazí možnosti:
@@ -83,7 +97,13 @@ if conn:
 
 nazev_ukolu = input(“Zadejte název úkolu”)
 popis_ukolu = input(“Zadejte popis úkolu”)
-cursor.execute(“INSERT INTO Ukoly (nazov, popis, stav) VALUES %s,%s,%s, (nazev, popis, stav)
+cursor.execute(“INSERT INTO Ukoly (nazov, popis, stav) VALUES (%s,%s,%s), (nazev, popis, stav)
+
+# v dalsej funkcii osetrit vstupy na stav ENUM 'nezahájeno', 'hotovo', 'probíhá'
+#  pozor na chybz
+# if input != 'nezahájeno' or input != 'hotovo' or input != 'probíhá':
+# Táto podmienka bude vždy pravdivá, pretože vstup sa nikdy nemôže rovnať všetkým trom naraz. Treba to prepísať.
+# urobit premennu a moznosti ako list.
 
 def osetrenie_vstupu_pre_stav():
     stav_dovolene_vstupy = ['nezahájeno', 'hotovo', 'probíhá']
@@ -95,13 +115,19 @@ def osetrenie_vstupu_pre_stav():
         print("Zadej správný výběr stavu úkolu")
         return
 # 5. zobrazit_ukoly() – Zobrazení úkolů
-#   - Seznam všech úkolů s informacemi: ID, název, popis, stav.
-#  - Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
+# OK Seznam všech úkolů s informacemi: ID, název, popis, stav.
+# OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # - Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
 def zobrat_ukoly():
-    cursor.execute(“SELECT id, name, stav FROM UKOLY”)
-    ukoly = cursor. fetchall()
-    return ukoly
+    cursor.execute("SELECT id, nazev, popis, stav FROM UKOLY")
+    ukoly_vsechny = cursor.fetchall()
+    return ukoly_vsechny
+    cursor.close()
+
+def zobrazeni_nedokoncenych_ukolu():
+    cursor.execute("SELECET id, nazev, popis, stav FROM UKOLY WHERE stav IN (Nezahájeno, Probíhá)")
+    ukoly_vyber_stav = cursor.fetchall()
+    return ukoly_vyber_stav
     cursor.close()
 
 
