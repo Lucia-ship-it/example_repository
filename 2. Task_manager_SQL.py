@@ -39,9 +39,9 @@ def vytvoreni_tabulky(conn):
             id INT PRIMARY KEY AUTO_INCREMENT,
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
-            stav  ENUM ('nezahájeno', 'hotovo', 'probíhá') NOT NULL, 
+            stav  ENUM ('nezahájeno', 'hotovo', 'probíhá') NOT NULL DEFAULT 'nezahájeno', 
             datum_vytvoreni DATE
-            )
+            );
         ''')
         print("Tabulka 'Ukoly' byla vytvořena.")
         conn.commit()
@@ -50,29 +50,25 @@ def vytvoreni_tabulky(conn):
     finally:
         cursor.close()
 
-conn = pripojeni_db()
-if conn:
-    vytvoreni_tabulky(conn)
-    print("Tabulka 'Ukoly' je k dispozici.")
-    conn.close()
 
 # pridanie prvých záznamov do tabulky - vzorove ukoly
 def pridani_vzorovych_ukolu(conn):
     '''pridanie 2 vzorovych uloh'''
     try:
         cursor = conn.cursor()
+        dnes = date.today()
         ulohy_exmpl = [
-            ("úkol 1", "popis k úkolu 1", "probíhá"),
-            ("úkol 2", "popis k úkolu 2", "hotovo")
+            ("úkol 1", "popis k úkolu 1", "probíhá", dnes),
+            ("úkol 2", "popis k úkolu 2", "hotovo", dnes)
         ]
         cursor.executemany(
-            "INSERT INTO Ukoly (nazev, popis, stav) VALUES (%s, %s, %s)",
+            "INSERT INTO Ukoly (nazev, popis, stav) VALUES (%s, %s, %s);",
             ulohy_exmpl
         )
-        cursor.commit()
+        conn.commit()
         print("✅ Přidání vzorových úkolů proběhlo v pořádku")
     except pymysql.MySQLError as err:
-        print(f"Chyba při přidávání knih: {err}")
+        print(f"Chyba při přidávání úkolů: {err}")
     finally:
         cursor.close()
 
@@ -95,9 +91,16 @@ def pridani_vzorovych_ukolu(conn):
 #     2. Výchozí stav ukolu: Nezahájeno
 # - Po splnění všech podmínek se úkol uloží do databáze
 
-nazev_ukolu = input(“Zadejte název úkolu”)
-popis_ukolu = input(“Zadejte popis úkolu”)
-cursor.execute(“INSERT INTO Ukoly (nazov, popis, stav) VALUES (%s,%s,%s), (nazev, popis, stav)
+# nazev_ukolu = input(“Zadejte název úkolu”)
+# popis_ukolu = input(“Zadejte popis úkolu”)
+# cursor.execute("INSERT INTO Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav)
+# conn.commit()
+# # kontrola, ci sa mi to tam pridalo
+# cursor.execute("SELECT * From Ukoly;")
+# ukolceky = cursor.fetchall()
+# for u in ukolceky:
+#     print(u[-1])
+# cursor.close()
 
 # v dalsej funkcii osetrit vstupy na stav ENUM 'nezahájeno', 'hotovo', 'probíhá'
 #  pozor na chybz
@@ -105,41 +108,75 @@ cursor.execute(“INSERT INTO Ukoly (nazov, popis, stav) VALUES (%s,%s,%s), (naz
 # Táto podmienka bude vždy pravdivá, pretože vstup sa nikdy nemôže rovnať všetkým trom naraz. Treba to prepísať.
 # urobit premennu a moznosti ako list.
 
-def osetrenie_vstupu_pre_stav():
-    stav_dovolene_vstupy = ['nezahájeno', 'hotovo', 'probíhá']
-    stav_ukolu = input("Napište, v jakém stavu je váš úkol. Možnosti: nezahájeno, hotovo, probíhá.").lower().strip()
-    if stav in stav_dovolene_vstupy:
-        try:
-            #funkcia pre zapisanie stavu do tabulky.
-        except:
-        print("Zadej správný výběr stavu úkolu")
-        return
+# def osetrenie_vstupu_pre_stav():
+#     stav_dovolene_vstupy = ['nezahájeno', 'hotovo', 'probíhá']
+#     stav_ukolu = input("Napište, v jakém stavu je váš úkol. Možnosti: nezahájeno, hotovo, probíhá.").lower().strip()
+#     if stav in stav_dovolene_vstupy:
+#         try:
+#             #funkcia pre zapisanie stavu do tabulky.
+#         except pymysql.MySQLError:
+#             print("Zadej správný výběr stavu úkolu")
+#             return
+
 # 5. zobrazit_ukoly() – Zobrazení úkolů
 # OK Seznam všech úkolů s informacemi: ID, název, popis, stav.
 # OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # - Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
-def zobrat_ukoly():
-    cursor.execute("SELECT id, nazev, popis, stav FROM UKOLY")
+def zobrat_ukoly(conn):
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly;")
     ukoly_vsechny = cursor.fetchall()
     return ukoly_vsechny
     cursor.close()
 
-def zobrazeni_nedokoncenych_ukolu():
-    cursor.execute("SELECET id, nazev, popis, stav FROM UKOLY WHERE stav IN (Nezahájeno, Probíhá)")
+def zobrazeni_nedokoncenych_ukolu(conn):
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECET id, nazev, popis, stav FROM Ukoly WHERE stav IN ('Nezahájeno', 'Probíhá');")
     ukoly_vyber_stav = cursor.fetchall()
-    return ukoly_vyber_stav
+    for ukol in  ukoly_vyber_stav:
+        return ukol
     cursor.close()
 
 
 # 6. aktualizovat_ukol() – Změna stavu úkolu
-# - Uživatel vidí seznam úkolů (ID, název, stav).
+# OK Uživatel vidí seznam úkolů (ID, název, stav).
 # - Vybere úkol podle ID.
 # - Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
 # - Po potvrzení se aktualizuje DB.
 # -  Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
+def aktualizacia_ukolu(conn):
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT id, nazev, stav FROM Ukoly;")
+    vsechny_ukoly_aktualizace = cursor.fetchall()
+    vyber_ukolu_id = input("Zadejte ID úkolu, který chcete smazat: ")
+    return vsechny_ukoly_aktualizace
+
+    
+    # try:
+    #     if vyber_ukolu_id in vsechny_ukoly_aktualizace:
+    #         co_menime = ("Zadejte, jak má aktualizovaný řádek vypadat: ")
+    #         cursor = conn.cursor
+    #         cursor.execute("UPDATE Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav))
+    #         conn.commit()
+
+    # except pymysql.MySQLError as err:
+    #     print(f"Chyba při přidávání knih: {err}")
+    # finally:
+    #     cursor.close()
+
+            
+    # cursor.close()
 
 # 7. odstranit_ukol() – Odstranění úkolu
 # - Uživatel vidí seznam úkolů.
 # -  Vybere úkol podle ID.
 # - Po potvrzení bude úkol trvale odstraněn z databáze.
 # - Pokud uživatel zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
+
+#------SPURSTENIE PROGRAMU-------
+
+conn = pripojeni_db()
+if conn:
+    vytvoreni_tabulky(conn)
+    print("Databáze Task_manager_SQL je k dispozici.\n")
+    conn.close()
