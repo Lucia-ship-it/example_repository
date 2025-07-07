@@ -1,6 +1,6 @@
 import pymysql
 from datetime import date
-exit()
+
 # zadanie
 # Použití MySQL databáze: Vytvoříte databázovou tabulku ukoly, která bude obsahovat: 
 # - id 
@@ -41,7 +41,7 @@ def vytvoreni_tabulky(conn):
             id INT PRIMARY KEY AUTO_INCREMENT,
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
-            stav  ENUM ('nezahájeno', 'hotovo', 'probíhá') NOT NULL DEFAULT 'nezahájeno', 
+            stav  ENUM ('Nezahájeno', 'Hotovo', 'Probíhá') NOT NULL DEFAULT 'nezahájeno', 
             datum_vytvoreni DATE
             );
         ''')
@@ -98,15 +98,15 @@ def pridat_ukolu_sql(conn):
     while True: #osetrenie prazdneho vstupu
         nazev_ukolu = input("Zadejte název úkolu: ").strip()
         if nazev_ukolu == "":
-            print("\nVyplnenie je povinné\n")
+            print("\nVyplnění je povinné\n")
         else:
             break
 
     while True:
-        popis_ukolu = input("Zadejte popis úkolu: ").strip()
-        if popis_ukolu == "":
-            print("\nVyplnenie je povinné\n")
-        else:
+       popis_ukolu = input("Zadejte popis úkolu: ").strip()
+       if popis_ukolu == "":
+            print("\nVyplnění je povinné\n")
+       else:
             break
 
     try: 
@@ -153,18 +153,28 @@ def pridat_ukolu_sql(conn):
 # OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # - Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
 def zobrat_ukoly(conn):
+    print("\nSeznam všech úkolů:") 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly;")
+    cursor.execute(
+        "SELECT id, nazev, popis, stav FROM Ukoly;"
+        )
     ukoly_vsechny = cursor.fetchall()
-    return ukoly_vsechny
+    if len(ukoly_vsechny) == 0:
+        print("Seznam úkolů je prázdný")
+    for ukol in ukoly_vsechny:
+        print(ukol)
     cursor.close()
 
+    
 def zobrazeni_nedokoncenych_ukolu(conn):
+    print("\nZobrazení nedokončených úkolů: ")
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECET id, nazev, popis, stav FROM Ukoly WHERE stav IN ('Nezahájeno', 'Probíhá');")
+    cursor.execute(
+        "SELECT id, nazev, popis, stav FROM Ukoly WHERE stav IN ('nezahájeno', 'probíhá');"
+        )
     ukoly_vyber_stav = cursor.fetchall()
-    for ukol in  ukoly_vyber_stav:
-        return ukol
+    for u in ukoly_vyber_stav:
+        print(u)
     cursor.close()
 
 
@@ -209,5 +219,7 @@ conn = pripojeni_db()
 if conn:
     vytvoreni_tabulky(conn)
     print("Databáze Task_manager_SQL je k dispozici.\n")
-    pridat_ukolu_sql(conn)
+    #pridat_ukolu_sql(conn)
+    zobrat_ukoly(conn)
+    zobrazeni_nedokoncenych_ukolu(conn)
     conn.close()
