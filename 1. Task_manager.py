@@ -20,14 +20,14 @@ def pridat_ukol():
     while True: #osetrenie prazdneho vstupu
         nazev = input("\tZadejte název úkolu: ").strip() 
         if nazev == "":
-            print("\nVyplnenie je povinné\n")
+            print("\nVyplnění je povinné\n")
         else:
             break
 
     while True:
         popis = input("\tZadejte popis úkolu: ").strip()
         if popis == "":
-            print("\nVyplnenie je povinné\n")
+            print("\nVyplnění je povinné\n")
         else:
             break
 
