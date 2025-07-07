@@ -1,6 +1,6 @@
 import pymysql
 from datetime import date
-
+exit()
 # zadanie
 # Použití MySQL databáze: Vytvoříte databázovou tabulku ukoly, která bude obsahovat: 
 # - id 
@@ -94,36 +94,36 @@ def pridani_vzorovych_ukolu(conn):
 # - Po splnění všech podmínek se úkol uloží do databáze
 
 def pridat_ukolu_sql(conn):
-
-    nazev_ukolu = input("Zadejte název úkolu: ").strip()
-    popis_ukolu = input("Zadejte popis úkolu: ").strip()
     '''Získaj vstupy od používateľa a ulož úlohu do DB'''
     while True: #osetrenie prazdneho vstupu
+        nazev_ukolu = input("Zadejte název úkolu: ").strip()
         if nazev_ukolu == "":
             print("\nVyplnenie je povinné\n")
         else:
             break
 
     while True:
-       
+        popis_ukolu = input("Zadejte popis úkolu: ").strip()
         if popis_ukolu == "":
             print("\nVyplnenie je povinné\n")
         else:
             break
 
     try: 
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
             "INSERT INTO Ukoly (nazev, popis) VALUES (%s,%s);", 
             (nazev_ukolu, popis_ukolu)
             )
         conn.commit()
 
-# kontrola, ci sa mi to tam pridalo
-        cursor.execute("SELECT * From Ukoly;")
-        ukolceky = cursor.fetchall()
-        for u in ukolceky:
-           print(u[-1])
+# zobrazenie posledneho ukolu
+        cursor.execute(
+            "SELECT * From Ukoly ORDER BY id DESC LIMIT 1;"
+            )
+        posledny_ukol = cursor.fetchone()
+        print(posledny_ukol)
+
     
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při ukládání do databáze: {err}")
