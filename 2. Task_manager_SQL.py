@@ -13,6 +13,8 @@ from datetime import date
 # 1. pripojeni_db() – Připojení k databázi
 # OK Funkce vytvoří připojení k MySQL databázi.
 # OK Pokud připojení selže, zobrazí chybovou zprávu.
+
+
 def pripojeni_db():
     try:
         conn = pymysql.connect(
@@ -22,7 +24,7 @@ def pripojeni_db():
                 password="79_|rBg[1F=`}cj|I%kc",
                 database="Task_manager_SQL"            
             )
-        print("Připojení k databázi bylo úspěšné.")
+        print("\nPřipojení k databázi bylo úspěšné.")
         return conn
     except pymysql.MySQLError as err:
         print(f"Chyba při připojování: {err}")
@@ -84,23 +86,51 @@ def pridani_vzorovych_ukolu(conn):
 # - Pokud uživatel zadá špatnou volbu, program ho upozorní a nechá ho vybrat znovu.
 
 # 4. pridat_ukol() – Přidání úkolu
-#   - Uživatel zadá název a popis úkolu.
-#  - Povinné údaje: Název i popis jsou povinné, nesmí být prázdné.
+# OK Uživatel zadá název a popis úkolu.
+#  / Povinné údaje: Název i popis jsou povinné, nesmí být prázdné.
 # - Automatické hodnoty:
-#     1. Úkol dostane ID automaticky.
-#     2. Výchozí stav ukolu: Nezahájeno
+# OK    1. Úkol dostane ID automaticky.
+# OK    2. Výchozí stav ukolu: Nezahájeno
 # - Po splnění všech podmínek se úkol uloží do databáze
 
-# nazev_ukolu = input(“Zadejte název úkolu”)
-# popis_ukolu = input(“Zadejte popis úkolu”)
-# cursor.execute("INSERT INTO Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav)
-# conn.commit()
-# # kontrola, ci sa mi to tam pridalo
-# cursor.execute("SELECT * From Ukoly;")
-# ukolceky = cursor.fetchall()
-# for u in ukolceky:
-#     print(u[-1])
-# cursor.close()
+def pridat_ukolu_sql(conn):
+
+    nazev_ukolu = input("Zadejte název úkolu: ").strip()
+    popis_ukolu = input("Zadejte popis úkolu: ").strip()
+    '''Získaj vstupy od používateľa a ulož úlohu do DB'''
+    while True: #osetrenie prazdneho vstupu
+        if nazev_ukolu == "":
+            print("\nVyplnenie je povinné\n")
+        else:
+            break
+
+    while True:
+       
+        if popis_ukolu == "":
+            print("\nVyplnenie je povinné\n")
+        else:
+            break
+
+    try: 
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO Ukoly (nazev, popis) VALUES (%s,%s);", 
+            (nazev_ukolu, popis_ukolu)
+            )
+        conn.commit()
+
+# kontrola, ci sa mi to tam pridalo
+        cursor.execute("SELECT * From Ukoly;")
+        ukolceky = cursor.fetchall()
+        for u in ukolceky:
+           print(u[-1])
+    
+    except pymysql.MySQLError as err:
+        print(f"❌ Chyba při ukládání do databáze: {err}")
+
+    finally:
+        cursor.close()
+
 
 # v dalsej funkcii osetrit vstupy na stav ENUM 'nezahájeno', 'hotovo', 'probíhá'
 #  pozor na chybz
@@ -179,4 +209,5 @@ conn = pripojeni_db()
 if conn:
     vytvoreni_tabulky(conn)
     print("Databáze Task_manager_SQL je k dispozici.\n")
+    pridat_ukolu_sql(conn)
     conn.close()
