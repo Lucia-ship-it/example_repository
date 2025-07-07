@@ -48,7 +48,7 @@ def zobrazit_ukoly():
         print(f"{i}.{uloha}")
 
     print("\n")
-    hlavni_menu()
+    
 
 # ok    zadanie 3 - odstranit ukol
 # ok    umožnit zadat číslo úkolu, který chce odstranit
@@ -80,21 +80,20 @@ def odstranit_ukol():
     while len(vsechny_ukoly) == 0:
         print("Zoznam je prázny, budete presmerovaný na hlavne menu.\n")  
         break
-
-    hlavni_menu()      
+      
 
 # ok    zadanie 0 - Funkce hlavního menu
 # ok    přidání, zobrazení a odstranění úkolu. 
 # ok    neplatnou volbu, program ho upozorní a nechá uživatele opakovat znovu volbu.
 
 def hlavni_menu():
-    print("\nSprávce úkolů - Hlavní menu")
-    print("1. Přidat nový úkol")
-    print("2. Zobrazit všechny úkoly")
-    print("3. Odstranit úkol")
-    print("4. Konec programu")
     
     while True:
+        print("\nSprávce úkolů - Hlavní menu")
+        print("1. Přidat nový úkol")
+        print("2. Zobrazit všechny úkoly")
+        print("3. Odstranit úkol")
+        print("4. Konec programu")
         try:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             if vyber_cisla ==1:
@@ -111,7 +110,6 @@ def hlavni_menu():
                 exit()
             else:
                 print("\nZadejte správnou hodnotu.")
-                vyber_cisla=int(input("Vyberte možnost (1-4):"))
         except ValueError:
             print("\nZadejte správnou hodnotu.")
         
