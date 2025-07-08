@@ -78,12 +78,40 @@ def pridani_vzorovych_ukolu(conn):
 
 # 3. hlavni_menu() – Hlavní nabídka
 #  - Zobrazí možnosti:
-#     1. Přidat úkol
-#     2. Zobrazit úkoly
-#     3. Aktualizovat úkol
-#     4. Odstranit úkol
-#     5. Ukončit program
+# OK  1. Přidat úkol
+# OK  2. Zobrazit úkoly
+# OK  3. Aktualizovat úkol
+# OK  4. Odstranit úkol
+# OK  5. Ukončit program
 # - Pokud uživatel zadá špatnou volbu, program ho upozorní a nechá ho vybrat znovu.
+def hlavni_menu():
+    
+    while True:
+        print("\nSprávce úkolů - Hlavní menu")
+        print("1. Přidat úkol")
+        print("2. Zobrazit všechny úkoly")
+        print("3. Odstranit úkol")
+        print("4. Konec programu")
+        try:
+            vyber_cisla=int(input("Vyberte možnost (1-4):"))
+            if vyber_cisla == 1:
+                print("\nPřidání nového úkolu")
+                pridat_ukolu_sql()
+            elif vyber_cisla == 2:
+                print("\nZobrazení všech úkolů")
+                zobrat_ukoly()
+            elif vyber_cisla == 3:
+                print("Aktualizovat úkol")
+            elif vyber_cisla == 4:
+                print("\nVolba: Odstranění úkolu")
+                aktualizace_ukolu()
+            elif vyber_cisla == 5:
+                print("\nKonec programu.\n")
+                exit()
+            else:
+                print("\nZadejte správnou hodnotu.")
+        except ValueError:
+            print("\nZadejte správnou hodnotu.")
 
 # 4. pridat_ukol() – Přidání úkolu
 # OK Uživatel zadá název a popis úkolu.
@@ -184,7 +212,7 @@ def zobrazeni_nedokoncenych_ukolu(conn):
 # - Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
 # - Po potvrzení se aktualizuje DB.
 # -  Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
-def aktualizacia_ukolu(conn):
+def aktualizace_ukolu(conn):
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT id, nazev, stav FROM Ukoly;")
     vsechny_ukoly_aktualizace = cursor.fetchall()
