@@ -41,8 +41,8 @@ def vytvoreni_tabulky(conn):
             id INT PRIMARY KEY AUTO_INCREMENT,
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
-            stav  ENUM ('Nezahájeno', 'Hotovo', 'Probíhá') NOT NULL DEFAULT 'nezahájeno', 
-            datum_vytvoreni DATE
+            stav  ENUM ('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'nezahájeno', 
+            datum_vytvoreni DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         ''')
         print("Tabulka 'Ukoly' byla vytvořena.")
@@ -77,36 +77,38 @@ def pridani_vzorovych_ukolu(conn):
 
 
 # 3. hlavni_menu() – Hlavní nabídka
-#  - Zobrazí možnosti:
+# OK  Zobrazí možnosti:
 # OK  1. Přidat úkol
 # OK  2. Zobrazit úkoly
 # OK  3. Aktualizovat úkol
 # OK  4. Odstranit úkol
 # OK  5. Ukončit program
-# - Pokud uživatel zadá špatnou volbu, program ho upozorní a nechá ho vybrat znovu.
-def hlavni_menu():
-    
-    while True:
+# OK  Pokud uživatel zadá špatnou volbu, program ho upozorní a nechá ho vybrat znovu.
+def hlavni_menu(conn):
+   
+     while True:
         print("\nSprávce úkolů - Hlavní menu")
         print("1. Přidat úkol")
         print("2. Zobrazit všechny úkoly")
-        print("3. Odstranit úkol")
-        print("4. Konec programu")
+        print("3. Aktualizovat úkol")
+        print("4. Odstranit úkol")
+        print("5. Ukončit program")
         try:
             vyber_cisla=int(input("Vyberte možnost (1-4):"))
             if vyber_cisla == 1:
-                print("\nPřidání nového úkolu")
-                pridat_ukolu_sql()
+                print("\nPřidání nového úkolu:")
+                pridat_ukol_sql(conn)
             elif vyber_cisla == 2:
-                print("\nZobrazení všech úkolů")
-                zobrat_ukoly()
+                print("\nZobrazení všech úkolů:")
+                zobrazit_ukoly(conn)
             elif vyber_cisla == 3:
-                print("Aktualizovat úkol")
+                print("Volba Aktualizovat úkol:")
+                aktualizace_ukolu(conn)
             elif vyber_cisla == 4:
-                print("\nVolba: Odstranění úkolu")
-                aktualizace_ukolu()
+                print("\nVolba Odstranění úkolu:")
+                
             elif vyber_cisla == 5:
-                print("\nKonec programu.\n")
+                print("\nKonec programu, naschledanou.\n")
                 exit()
             else:
                 print("\nZadejte správnou hodnotu.")
@@ -115,13 +117,13 @@ def hlavni_menu():
 
 # 4. pridat_ukol() – Přidání úkolu
 # OK Uživatel zadá název a popis úkolu.
-#  / Povinné údaje: Název i popis jsou povinné, nesmí být prázdné.
-# - Automatické hodnoty:
+# OK Povinné údaje: Název i popis jsou povinné, nesmí být prázdné.
+# OK - Automatické hodnoty:
 # OK    1. Úkol dostane ID automaticky.
 # OK    2. Výchozí stav ukolu: Nezahájeno
-# - Po splnění všech podmínek se úkol uloží do databáze
+# OK - Po splnění všech podmínek se úkol uloží do databáze
 
-def pridat_ukolu_sql(conn):
+def pridat_ukol_sql(conn):
     '''Získaj vstupy od používateľa a ulož úlohu do DB'''
     while True: #osetrenie prazdneho vstupu
         nazev_ukolu = input("Zadejte název úkolu: ").strip()
@@ -150,7 +152,7 @@ def pridat_ukolu_sql(conn):
             "SELECT * From Ukoly ORDER BY id DESC LIMIT 1;"
             )
         posledny_ukol = cursor.fetchone()
-        print(posledny_ukol)
+        print(f"Přidali jste nový úkol: {posledny_ukol}")
 
     
     except pymysql.MySQLError as err:
@@ -180,7 +182,7 @@ def pridat_ukolu_sql(conn):
 # OK Seznam všech úkolů s informacemi: ID, název, popis, stav.
 # OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # - Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
-def zobrat_ukoly(conn):
+def zobrazit_ukoly(conn):
     print("\nSeznam všech úkolů:") 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(
@@ -193,7 +195,6 @@ def zobrat_ukoly(conn):
         print(ukol)
     cursor.close()
 
-    
 def zobrazeni_nedokoncenych_ukolu(conn):
     print("\nZobrazení nedokončených úkolů: ")
     cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -205,35 +206,50 @@ def zobrazeni_nedokoncenych_ukolu(conn):
         print(u)
     cursor.close()
 
-
 # 6. aktualizovat_ukol() – Změna stavu úkolu
 # OK Uživatel vidí seznam úkolů (ID, název, stav).
 # - Vybere úkol podle ID.
 # - Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
 # - Po potvrzení se aktualizuje DB.
 # -  Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
+
+      
+#vstav dat do formatu na vyber cisla, aby to nemusel s diakritikou vyplnat. podobne ako vyber 
+
 def aktualizace_ukolu(conn):
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, nazev, stav FROM Ukoly;")
-    vsechny_ukoly_aktualizace = cursor.fetchall()
-    vyber_ukolu_id = input("Zadejte ID úkolu, který chcete smazat: ")
-    return vsechny_ukoly_aktualizace
+    #zobrazenie uloh / id, nazev, stav
+    while True:
+        print("\nSeznam úkolů:") 
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(
+            "SELECT id, nazev, stav FROM Ukoly;"
+                    )
+        vsechny_ukoly_vyber = cursor.fetchall()
+        for ukol_vyber in vsechny_ukoly_vyber:
+            print(ukol_vyber)
+        cursor.close()
+    
+    
+        vyber_ukolu_id = int(input("Zadejte ID úkolu, který chcete smazat: "))
+        try:
+            if vyber_ukolu_id in vsechny_ukoly_aktualizace(id):
+                print = ("Zadejte, jak má aktualizovaný řádek vypadat: ")
+                nazev = input("Zadejte název úkolu: ").strip()
+                popis = input("Zadejte popis úkolu: ").strip()
+                print("Zadejte stav úkolu výběrem z možností:'Nezahájeno', 'Probíhá', 'Hotovo'" )
+                stav = input("napis stav")
+                cursor = conn.cursor
+                cursor.execute("UPDATE Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav))
+                conn.commit()
+        except pymysql.MySQLError as err:
+                print(f"Chyba při aktualizaci úkolu: {err}")
+        finally:
+            cursor.close()
+
+
 
     
-    # try:
-    #     if vyber_ukolu_id in vsechny_ukoly_aktualizace:
-    #         co_menime = ("Zadejte, jak má aktualizovaný řádek vypadat: ")
-    #         cursor = conn.cursor
-    #         cursor.execute("UPDATE Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav))
-    #         conn.commit()
-
-    # except pymysql.MySQLError as err:
-    #     print(f"Chyba při přidávání knih: {err}")
-    # finally:
-    #     cursor.close()
-
-            
-    # cursor.close()
+        
 
 # 7. odstranit_ukol() – Odstranění úkolu
 # - Uživatel vidí seznam úkolů.
@@ -247,7 +263,6 @@ conn = pripojeni_db()
 if conn:
     vytvoreni_tabulky(conn)
     print("Databáze Task_manager_SQL je k dispozici.\n")
-    #pridat_ukolu_sql(conn)
-    zobrat_ukoly(conn)
-    zobrazeni_nedokoncenych_ukolu(conn)
+    hlavni_menu(conn)
     conn.close()
+   
