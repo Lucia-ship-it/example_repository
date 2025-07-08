@@ -100,7 +100,7 @@ def hlavni_menu():
                 print("\nPřidání nového úkolu")
                 pridat_ukol()
             elif vyber_cisla ==2:
-                print("\nZobrazení všech úkolů:")
+                print("\nZobrazení všech úkolů")
                 zobrazit_ukoly()
             elif vyber_cisla ==3:
                 print("\nVolba: Odstranění úkolu")
