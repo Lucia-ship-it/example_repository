@@ -217,30 +217,51 @@ def zobrazeni_nedokoncenych_ukolu(conn):
 #vstav dat do formatu na vyber cisla, aby to nemusel s diakritikou vyplnat. podobne ako vyber 
 
 def aktualizace_ukolu(conn):
-    #zobrazenie uloh / id, nazev, stav
+    print("\nSeznam úkolů:")
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(
+        "SELECT id, nazev, stav FROM Ukoly;"
+                )
+    vsechny_ukoly_vyber = cursor.fetchall()
+    for ukol_vyber in vsechny_ukoly_vyber:
+        print(ukol_vyber)
+    
+    # Vybere úkol podle ID.
+    vyber_ukolu_id = int(input("Zadejte ID úkolu, který chcete smazat: "))
     while True:
-        print("\nSeznam úkolů:") 
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(
-            "SELECT id, nazev, stav FROM Ukoly;"
-                    )
-        vsechny_ukoly_vyber = cursor.fetchall()
-        for ukol_vyber in vsechny_ukoly_vyber:
-            print(ukol_vyber)
-        cursor.close()
-    
-    
-        vyber_ukolu_id = int(input("Zadejte ID úkolu, který chcete smazat: "))
         try:
             if vyber_ukolu_id in vsechny_ukoly_aktualizace(id):
-                print = ("Zadejte, jak má aktualizovaný řádek vypadat: ")
+                print("Zadejte, jak má aktualizovaný řádek vypadat: ")
+            while True: #osetrenie prazdneho vstupu
                 nazev = input("Zadejte název úkolu: ").strip()
+                if nazev == "":
+                    print("\nVyplnění je povinné\n")
+                else:
+                    break
+    
+            while True:
                 popis = input("Zadejte popis úkolu: ").strip()
+                if popis == "":
+                    print("\nVyplnění je povinné\n")
+                else:
+                    break
+
+                
                 print("Zadejte stav úkolu výběrem z možností:'Nezahájeno', 'Probíhá', 'Hotovo'" )
                 stav = input("napis stav")
-                cursor = conn.cursor
-                cursor.execute("UPDATE Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav))
-                conn.commit()
+
+    #Po potvrzení se aktualizuje DB.
+            while True:
+                potvrdenie = input("Chcete uložit takhle upravený záznam? Napíšte ano/ne ")
+                if potvrdenie == 'ano':
+                    cursor = conn.cursor
+                    cursor.execute("UPDATE Ukoly (nazov, popis, stav) VALUES (%s,%s,%s)", (nazev, popis, stav))
+                    conn.commit()
+                elif potvrdenie == 'ne':
+                    return
+                else:
+                    print("Prosím zadejte požadovaný výraz.")
+            
         except pymysql.MySQLError as err:
                 print(f"Chyba při aktualizaci úkolu: {err}")
         finally:
