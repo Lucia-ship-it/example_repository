@@ -236,70 +236,24 @@ def aktualizace_ukolu(conn):
         else:
             print("\nZadejte správnou hodnotu id.")
             
-                                
-        while True:  #osetrenie prazdneho vstupu
-            print("\n\nZadejte, jak má aktualizovaný řádek vypadat: ")
-            nazev = input("Zadejte nový název úkolu: ").strip()
-            if nazev == "":
-                print("\nVyplnění je povinné\n")
-            else:
-                break
-            
-
+      
         while True:
-            popis = input("Zadejte nový popis úkolu: ").strip()
-            if popis == "":
-                print("\nVyplnění je povinné\n")
-            else:
-                break
+            print("Zadejte stav úkolu výběrem z možností: 'Probíhá', 'Hotovo'" )
+            hodnoty_stavu = ['Probíhá', 'Hotovo']
+            stav = input("Nový stav: ").strip()
 
-        while True:
-            print("Zadejte stav úkolu výběrem z možností:'Nezahájeno', 'Probíhá', 'Hotovo'" )
-            hodnoty_stavu = ['Nezahájeno', 'Probíhá', 'Hotovo']
-            stav = input("Vyplnte nový stav: ").strip()
-
-            if stav == "":
-                print("\nVyplnění je povinné\n")
-            elif stav not in hodnoty_stavu:
-                print("\nZadej stav z uvedených možností.\n")
-            else:
-                break
-
-
-            #Po potvrzení se aktualizuje DB.
-        while True:
-            print(f"\nChcete uložit takhle upravený záznam? 'Název úkolu: {nazev}, popis úkolu: {popis}, stav úkolu: {stav}'?\n")
-            potvrdenie = input("Napšte 'ano' nebo 'ne': ")
-
-            if potvrdenie == "":
-                print("\nVyplnění je povinné\n")
-            elif potvrdenie == 'ne':
-                print("❌ Aktualizace byla zrušena.")
-                break
-            elif potvrdenie == 'menu':
-                print("Budete přesměrovaný na hlavní menu.")
-                return
-            elif potvrdenie == 'ano':
+            if  stav in hodnoty_stavu:
                 cursor.execute(
-                    "UPDATE Ukoly SET nazev = %s, popis = %s, stav = %s WHERE id = %s;", 
-                    (nazev, popis, stav, vyber_ukolu_id)
+                    "UPDATE Ukoly SET stav = %s WHERE id = %s;", 
+                    ( stav, vyber_ukolu_id)
                     )
                 conn.commit()
-                print("✅ Úkol byl úspěšně aktualizován.")
+                print("\n✅ Úkol byl úspěšně aktualizován.\nNyní budete přesměrováni do hlavního menu.")
                 return
             else:
-                print("Prosím zadejte požadovaný výraz. Jestli si přejete přejít na Hlavní menu, napište 'menu'.")
-                
-        # except pymysql.MySQLError as err:
-        #     print(f"❌ Chyba při aktualizaci úkolu  {err}")
-        # finally:
-        #     cursor.close()
-
-
-
-
-
-    
+                print("\nZadejte správnou hodnotu")
+            
+       
         
 
 # 7. odstranit_ukol() – Odstranění úkolu

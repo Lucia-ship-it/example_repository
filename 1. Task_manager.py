@@ -78,7 +78,7 @@ def odstranit_ukol():
         except ValueError:
             print("Zadej číselný vstup!")
     while len(vsechny_ukoly) == 0:
-        print("Zoznam je prázny, budete přesměrovaný na hlavne menu.\n")  
+        print("Zoznam je prázny, nyní budete přesměrováni do hlavního menu.\n")  
         break
       
 
