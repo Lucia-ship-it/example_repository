@@ -102,7 +102,7 @@ def hlavni_menu(conn):
                 print("\nZobrazení všech úkolů:")
                 zobrazit_ukoly(conn)
             elif vyber_cisla == 3:
-                print("Volba Aktualizovat úkol:")
+                print("\nVolba Aktualizovat úkol:")
                 aktualizace_ukolu(conn)
             elif vyber_cisla == 4:
                 print("\nVolba Odstranění úkolu:")
@@ -110,7 +110,7 @@ def hlavni_menu(conn):
                 print("\nKonec programu, naschledanou.\n")
                 exit()
         except ValueError:
-            print("\nZadejte správnou hodnotu.")
+            print("\nZadejte správnou volbu menu.")
 
 # 4. pridat_ukol() – Přidání úkolu
 # OK Uživatel zadá název a popis úkolu.
@@ -205,9 +205,9 @@ def zobrazeni_nedokoncenych_ukolu(conn):
 
 # 6. aktualizovat_ukol() – Změna stavu úkolu
 # OK Uživatel vidí seznam úkolů (ID, název, stav).
-# - Vybere úkol podle ID.
-# - Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
-# - Po potvrzení se aktualizuje DB.
+# OK Vybere úkol podle ID.
+# OK Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
+# OK Po potvrzení se aktualizuje DB.
 # -  Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
 
       
@@ -222,39 +222,48 @@ def aktualizace_ukolu(conn):
     vsechny_ukoly_vyber = cursor.fetchall()
     for ukol_vyber in vsechny_ukoly_vyber:
         print(ukol_vyber)
+    vsechna_id = [ukol['id'] for ukol in vsechny_ukoly_vyber]
     
     # Vybere úkol podle ID.
     while True:
-        vyber_ukolu_id = int(input("\nZadejte ID úkolu, který chcete upravit: "))
-        if vyber_ukolu_id in vsechny_ukoly_vyber[0]:
-            print(f"K úpravě jste vybrali úlohu s id {vyber_ukolu_id}.")
-            cursor.execute(
-                "SELECT id, nazev, popis, stav FROM Ukoly WHERE id=%s;",vyber_ukolu_id
-            )
-            ukazka_ukolu = cursor.fetchone()
-            print(ukazka_ukolu)
-        else:
-            print("\nZadejte správnou hodnotu id.")
+        try:
+            vyber_ukolu_id = int(input("\nZadejte ID úkolu, který chcete upravit: "))
+
+            if vyber_ukolu_id in vsechna_id:
+                print(f"K úpravě jste vybrali úlohu s id {vyber_ukolu_id}.")
+                cursor.execute(
+                    "SELECT id, nazev, popis, stav FROM Ukoly WHERE id=%s;",
+                    (vyber_ukolu_id,) #SQL parametr (vyber_ukolu_id) musí být TUPLE (vyber_ukolu_id,)
+                )
+                ukazka_ukolu = cursor.fetchone()
+                print(ukazka_ukolu)
+                break
+            else:
+                print("\nZadejte správnou hodnotu id.")
+        except ValueError:
+            print("\n❗ Prosím, zadejte platné číslo.")
+        except pymysql.MySQLError as err:
+            print(f"❌ Chyba při výběru id úkolu {err}")
             
       
-        while True:
-            print("Zadejte stav úkolu výběrem z možností: 'Probíhá', 'Hotovo'" )
-            hodnoty_stavu = ['Probíhá', 'Hotovo']
-            stav = input("Nový stav: ").strip()
+    while True:
+        print("\nZadejte stav úkolu výběrem z možností: 'Probíhá', 'Hotovo'" )
+        hodnoty_stavu = ['Probíhá', 'Hotovo']
+        stav = input("Nový stav: ").strip()
 
-            if  stav in hodnoty_stavu:
-                cursor.execute(
-                    "UPDATE Ukoly SET stav = %s WHERE id = %s;", 
-                    ( stav, vyber_ukolu_id)
-                    )
-                conn.commit()
-                print("\n✅ Úkol byl úspěšně aktualizován.\nNyní budete přesměrováni do hlavního menu.")
-                return
-            else:
-                print("\nZadejte správnou hodnotu")
-            
-       
+        if  stav in hodnoty_stavu:
+            cursor.execute(
+                "UPDATE Ukoly SET stav = %s WHERE id = %s;", 
+                ( stav, vyber_ukolu_id)
+                )
+            conn.commit()
+            print("\n✅ Úkol byl úspěšně aktualizován.\nNyní budete přesměrováni do hlavního menu.")
+            return
+        else:
+            print("\nZadejte správnou hodnotu pro stav")
         
+    
+    
 
 # 7. odstranit_ukol() – Odstranění úkolu
 # - Uživatel vidí seznam úkolů.
