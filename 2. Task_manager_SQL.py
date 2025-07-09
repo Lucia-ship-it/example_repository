@@ -208,7 +208,7 @@ def zobrazeni_nedokoncenych_ukolu(conn):
 # OK Vybere úkol podle ID.
 # OK Dostane na výběr nový stav: "Probíhá" nebo "Hotovo"
 # OK Po potvrzení se aktualizuje DB.
-# -  Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
+# OK Pokud zadá neexistující ID, program ho upozorní a nechá ho vybrat znovu.
 
       
 #vstav dat do formatu na vyber cisla, aby to nemusel s diakritikou vyplnat. podobne ako vyber 
@@ -227,7 +227,7 @@ def aktualizace_ukolu(conn):
     # Vybere úkol podle ID.
     while True:
         try:
-            vyber_ukolu_id = int(input("\nZadejte ID úkolu, který chcete upravit: "))
+            vyber_ukolu_id = int(input("\nZadejte ID úkolu, který chcete upravit: ")) # musime osetrit ValueError, keby sa nezada cislo
 
             if vyber_ukolu_id in vsechna_id:
                 print(f"K úpravě jste vybrali úlohu s id {vyber_ukolu_id}.")
