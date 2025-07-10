@@ -77,8 +77,8 @@ def pridani_vzorovych_ukolu(conn):
         cursor = conn.cursor()
         dnes = date.today()
         ulohy_exmpl = [
-            ("úkol 1", "popis k úkolu 1", "probíhá", dnes),
-            ("úkol 2", "popis k úkolu 2", "hotovo", dnes)
+            ("úkol 1", "popis k úkolu 1", "Probíhá", dnes),
+            ("úkol 2", "popis k úkolu 2", "Hotovo", dnes)
         ]
         cursor.executemany(
             "INSERT INTO Ukoly (nazev, popis, stav) VALUES (%s, %s, %s);",
@@ -193,19 +193,25 @@ def zobrazit_ukoly(conn):
         print("Seznam úkolů je prázdný")
     for ukol in ukoly_vsechny:
         print(ukol)
-    cursor.close()
 
-
-def zobrazeni_nedokoncenych_ukolu(conn):
-    print("\nZobrazení nedokončených úkolů: ")
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute(
-        "SELECT id, nazev, popis, stav FROM Ukoly WHERE stav IN ('nezahájeno', 'probíhá');"
-        )
-    ukoly_vyber_stav = cursor.fetchall()
-    for u in ukoly_vyber_stav:
-        print(u)
-    cursor.close()
+    try:
+        vyber_filtru = input("\nChcete vyfiltrovat pouze Nedokončené úkoly? Napište 'ano' nebo 'ne': ").strip()
+        if vyber_filtru == 'ano':
+            print("\nZobrazení nedokončených úkolů: ")
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(
+                "SELECT id, nazev, popis, stav FROM Ukoly WHERE stav IN ('Nezahájeno', 'Probíhá');"
+                )
+            ukoly_vyber_filter = cursor.fetchall()
+            for u in ukoly_vyber_filter:
+                print(u)
+        elif vyber_filtru == "":
+            print("\nVyplnění je povinné")
+        else:
+            print("Budete přesměrováni do hlavního menu.")
+            return
+    finally:
+        cursor.close()
 
 # 6. aktualizovat_ukol() – Změna stavu úkolu
 # OK Uživatel vidí seznam úkolů (ID, název, stav).
