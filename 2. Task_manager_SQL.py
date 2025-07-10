@@ -180,7 +180,7 @@ def pridat_ukol_sql(conn):
 
 # 5. zobrazit_ukoly() – Zobrazení úkolů
 # OK Seznam všech úkolů s informacemi: ID, název, popis, stav.
-# -- Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
+# OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # OK Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
 def zobrazit_ukoly(conn):
     print("\nSeznam všech úkolů:") 
