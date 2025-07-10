@@ -3,11 +3,11 @@ from datetime import date
 
 # zadanie
 # Použití MySQL databáze: Vytvoříte databázovou tabulku ukoly, která bude obsahovat: 
-# - id 
-# - nazev
-# - popis
-# - stav (nezahájeno, hotovo, probíhá)
-# - datum vytvoreni
+# OK - id 
+# OK - nazev
+# OK - popis
+# OK - stav (nezahájeno, hotovo, probíhá)
+# OK - datum vytvoreni
 
 # ---------- Funkce programu ----------
 # 1. pripojeni_db() – Připojení k databázi
@@ -24,14 +24,31 @@ def pripojeni_db():
                 password="79_|rBg[1F=`}cj|I%kc",
                 database="Task_manager_SQL"            
             )
-        print("\nPřipojení k databázi bylo úspěšné.")
+        print("\nPřipojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
         return conn
     except pymysql.MySQLError as err:
         print(f"Chyba při připojování: {err}")
 
+#overeni existence tabulky v databaze
+def overit_existenci_tabulky(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT 1 FROM Ukoly;") #Z tabulky se nevypisují žádná skutečná data, jen odpoved, že dotaz jde provést.
+        overenie = cursor.fetchone()
+        print("✅ Tabulka 'Ukoly' je aktivní.")
+    except pymysql.err.ProgrammingError as err:
+        if "doesn't exist" in str(err):             # hladam tento retazec v errorovej hlaske, e hlaska = 1146, "Table 'Task_manager_SQL.Ukooly' doesn't exist"
+            print("Tabulka 'Ukoly' neexistuje. Vytvářím ji...")
+            vytvoreni_tabulky(conn)
+        else:
+            print(f"❌ Jiná chyba při ověřování tabulky: {err}")
+    finally:
+        cursor.close()
+
+
 # 2. vytvoreni_tabulky() – Vytvoření tabulky, pokud neexistuje
 # OK - Funkce vytvoří tabulku ukoly, pokud ještě neexistuje.
-# OK - Ověří existenci tabulky v databázi.
+# OK - Ověří existenci tabulky v databázi. overit_existenci_tabulky(conn)
 
 def vytvoreni_tabulky(conn):
     try:
@@ -41,11 +58,11 @@ def vytvoreni_tabulky(conn):
             id INT PRIMARY KEY AUTO_INCREMENT,
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
-            stav  ENUM ('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'nezahájeno', 
+            stav  ENUM ('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno', 
             datum_vytvoreni DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         ''')
-        print("Tabulka 'Ukoly' byla vytvořena.")
+        print("Tabulka 'Ukoly' je vytvořena.")
         conn.commit()
     except pymysql.MySQLError as err:
         print(f"Chyba při vytváření tabulky: {err}")
@@ -53,7 +70,7 @@ def vytvoreni_tabulky(conn):
         cursor.close()
 
 
-# pridanie prvých záznamov do tabulky - vzorove ukoly
+# pridanie prvých záznamov do tabulky - vzorove ukoly NEAKTIVNI
 def pridani_vzorovych_ukolu(conn):
     '''pridanie 2 vzorovych uloh'''
     try:
@@ -94,7 +111,7 @@ def hlavni_menu(conn):
         print("4. Odstranit úkol")
         print("5. Ukončit program")
         try:
-            vyber_cisla=int(input("Vyberte možnost (1-4):"))
+            vyber_cisla=int(input("Vyberte možnost (1-5):"))
             if vyber_cisla == 1:
                 print("\nPřidání nového úkolu")
                 pridat_ukol_sql(conn)
@@ -114,7 +131,7 @@ def hlavni_menu(conn):
 
 # 4. pridat_ukol() – Přidání úkolu
 # OK Uživatel zadá název a popis úkolu.
-# OK Povinné údaje: Název i popis jsou povinné, nesmí být prázdné.
+# OK Povinné údaje: Název a popis jsou povinné, nesmí být prázdné.
 # OK - Automatické hodnoty:
 # OK    1. Úkol dostane ID automaticky.
 # OK    2. Výchozí stav ukolu: Nezahájeno
@@ -159,21 +176,6 @@ def pridat_ukol_sql(conn):
         cursor.close()
 
 
-# v dalsej funkcii osetrit vstupy na stav ENUM 'nezahájeno', 'hotovo', 'probíhá'
-#  pozor na chybz
-# if input != 'nezahájeno' or input != 'hotovo' or input != 'probíhá':
-# Táto podmienka bude vždy pravdivá, pretože vstup sa nikdy nemôže rovnať všetkým trom naraz. Treba to prepísať.
-# urobit premennu a moznosti ako list.
-
-# def osetrenie_vstupu_pre_stav():
-#     stav_dovolene_vstupy = ['nezahájeno', 'hotovo', 'probíhá']
-#     stav_ukolu = input("Napište, v jakém stavu je váš úkol. Možnosti: nezahájeno, hotovo, probíhá.").lower().strip()
-#     if stav in stav_dovolene_vstupy:
-#         try:
-#             #funkcia pre zapisanie stavu do tabulky.
-#         except pymysql.MySQLError:
-#             print("Zadej správný výběr stavu úkolu")
-#             return
 
 # 5. zobrazit_ukoly() – Zobrazení úkolů
 # OK Seznam všech úkolů s informacemi: ID, název, popis, stav.
@@ -191,6 +193,7 @@ def zobrazit_ukoly(conn):
     for ukol in ukoly_vsechny:
         print(ukol)
     cursor.close()
+
 
 def zobrazeni_nedokoncenych_ukolu(conn):
     print("\nZobrazení nedokončených úkolů: ")
@@ -275,8 +278,7 @@ def aktualizace_ukolu(conn):
 
 conn = pripojeni_db()
 if conn:
-    vytvoreni_tabulky(conn)
-    print("Databáze Task_manager_SQL je k dispozici.\n")
+    overit_existenci_tabulky(conn)
     hlavni_menu(conn)
     conn.close()
    
