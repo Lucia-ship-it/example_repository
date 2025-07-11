@@ -25,6 +25,13 @@ projekt/
 ├── test_ukoly.py     # testy cez pytest
 └── requirements.txt  # ak budeš inštalovať knižnice
 
+projekt/
+├── ukoly_sql.py          ← obsahuje databázové funkcie (SQL)
+├── ukoly_logika.py       ← čistá logika bez input()/print() → testovateľná
+├── ukoly_input.py        ← funkcie s input()/print()
+├── test_ukoly_logika.py  ← pytest testy pre logiku
+└── main.py               ← spúšťací súbor (napr. menu, výber akcií)
+
 ----> POSTUP <------ 
 Napíšeš funkciu → napr. kontrola_id_status
 Vyskúšaš ju cez pytest v test_ukoly.py

@@ -1,0 +1,1 @@
+#čistá logika bez input()/print() → testovateľná

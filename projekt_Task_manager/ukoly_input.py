@@ -1,0 +1,1 @@
+#funkcie s input()/print()

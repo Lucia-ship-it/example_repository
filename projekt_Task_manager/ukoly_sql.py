@@ -1,0 +1,2 @@
+#obsahuje databázové funkcie (SQL)
+

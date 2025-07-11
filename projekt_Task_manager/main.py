@@ -1,0 +1,1 @@
+#spúšťací súbor (napr. menu, výber akcií)

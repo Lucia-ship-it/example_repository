@@ -97,8 +97,8 @@ def main(): #k testu
 # OK    2. Výchozí stav ukolu: Nezahájeno
 # OK OK Po splnění všech podmínek se úkol uloží do databáze - def pridat_ukol_sql(conn,nazev_ukolu, popis_ukolu)
 
-def pridat_ukol_sql(conn,nazev_ukolu, popis_ukolu):
-    pridat_ukol_vstupy(conn)
+def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
+    add_task_overenie_inputu(conn)
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
@@ -107,12 +107,12 @@ def pridat_ukol_sql(conn,nazev_ukolu, popis_ukolu):
     conn.commit()
     cursor.close()
 
-def pridat_ukol_vstupy(conn, nazev: str, popis: str) -> str:
+def add_task_overenie_inputu(conn, nazev: str, popis: str) -> str:
     nazev = nazev.strip()
     popis = popis.strip()
     if not nazev or not popis:
         return ""
-    return f"{nazev}: {popis}"  
+    return f"{nazev}: {popis}"
 
 
 # 5. zobrazit_ukoly() – Zobrazení úkolů
@@ -271,6 +271,6 @@ def odstraneni_ukolu():
 #------SPURSTENIE PROGRAMU-------
 
 conn = connect_to_db()
-if conn:
+# if conn:
     
    
