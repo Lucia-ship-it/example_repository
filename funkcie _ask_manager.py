@@ -9,7 +9,7 @@ def create_table_if_not_exist(conn): #slo by na test
     cursor = conn.cursor()
     try:
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Ukoly (
+            CREATE TABLE IF NOT EXISTS Ukoly_test (
             id INT PRIMARY KEY AUTO_INCREMENT,
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
@@ -17,7 +17,7 @@ def create_table_if_not_exist(conn): #slo by na test
             datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
             );
         ''')
-        print("✅ Tabulka 'Ukoly' je vytvořena.")
+        print("✅ Tabulka 'Ukoly_test' je vytvořena.")
         conn.commit()
     except pymysql.MySQLError as err:
         print(f"Chyba při vytváření tabulky: {err}")
@@ -49,12 +49,7 @@ def connect_to_db(): #slo by na test
 
 
 # 3. hlavni_menu() – Hlavní nabídka - def main()
-# OK OK  Zobrazí možnosti:
-                #  1. Přidat úkol
-                #  2. Zobrazit úkoly
-                #  3. Aktualizovat úkol
-                #  4. Odstranit úkol
-                #  5. Ukončit program
+# OK OK  Zobrazí možnosti menu:
 # OK OK Pokud uživatel zadá špatnou volbu, program ho upozorní a nechá ho vybrat znovu.
 
 def main(): #k testu
@@ -106,33 +101,24 @@ def pridat_ukol_sql(conn,nazev_ukolu, popis_ukolu):
     pridat_ukol_vstupy(conn)
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO Ukoly (nazev, popis) VALUES (%s,%s);", 
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
         (nazev_ukolu, popis_ukolu)
         )
     conn.commit()
     cursor.close()
 
-########################################################################
 def pridat_ukol_vstupy(conn, nazev: str, popis: str) -> str:
-    '''Získaj vstupy od používateľa a ulož úlohu do DB'''
     nazev = nazev.strip()
     popis = popis.strip()
     if not nazev or not popis:
         return ""
     return f"{nazev}: {popis}"  
-########################################################################
-
-
-
 
 
 # 5. zobrazit_ukoly() – Zobrazení úkolů
 #  OK OK Seznam všech úkolů s informacemi: ID, název, popis, stav. -> def get_all_tasks(conn)
 #  OK OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá". -> def data_filter(conn)
 #  Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
-def zobrazit_ukoly(conn):
-    get_all_tasks(conn)
-    data_filter(conn)
 
 
 def get_all_tasks(conn):
@@ -140,7 +126,7 @@ def get_all_tasks(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
-            "SELECT id, nazev, popis, stav FROM Ukoly;"
+            "SELECT id, nazev, popis, stav FROM Ukoly_test;"
         )
         all_tasks = cursor.fetchall()
         return all_tasks
@@ -156,7 +142,7 @@ def data_filter(conn):# k testu
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     try:
         cursor.execute(
-            "SELECT id, nazev, popis, stav FROM Ukoly WHERE stav IN ('Nezahájeno', 'Probíhá');"
+            "SELECT id, nazev, popis, stav FROM Ukoly_test WHERE stav IN ('Nezahájeno', 'Probíhá');"
         )
         nedokoncene_ukoly = cursor.fetchall()
         return nedokoncene_ukoly
@@ -175,10 +161,6 @@ def data_filter(conn):# k testu
 #     else:
 #         print("Budete přesměrováni do hlavního menu.")
         
-    
-    
-      
-            
 
 # 6. aktualizovat_ukol() – Změna stavu úkolu
 # OK OK     Uživatel vidí seznam úkolů (ID, název, stav). -> get_all_tasks(conn)
@@ -201,7 +183,7 @@ def update_tast_status(conn, vyber_id, novy_stav):
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE Ukoly SET stav = %s WHERE id = %s;", 
+            "UPDATE Ukoly_test SET stav = %s WHERE id = %s;", 
             (novy_stav, vyber_id)
         )
         conn.commit()
@@ -219,7 +201,7 @@ def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
-            "SELECT id FROM Ukoly WHERE id=%s;",
+            "SELECT id FROM Ukoly_test WHERE id=%s;",
             (vyber_id,)
         )
         vyber_id = cursor.fetchone()
@@ -258,7 +240,7 @@ def odstraneni_ukolu():
     print("\nSeznam všech úkolů:") 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(
-        "SELECT id, nazev, popis, stav FROM Ukoly;"
+        "SELECT id, nazev, popis, stav FROM Ukoly_test;"
         )
     ukoly_vsechny = cursor.fetchall()
     if len(ukoly_vsechny) == 0:
@@ -274,7 +256,7 @@ def odstraneni_ukolu():
             if vyber_ukolu_id in vsechna_id:
                 print(f"K odstranění jste vybrali úkol s id {vyber_ukolu_id}.")
                 cursor.execute(
-                    "DELETE FROM Ukoly WHERE id=%s;",
+                    "DELETE FROM Ukoly_test WHERE id=%s;",
                     (vyber_ukolu_id,)
                 )
                 print("Úkol byl odstraněn.")
@@ -288,9 +270,7 @@ def odstraneni_ukolu():
 
 #------SPURSTENIE PROGRAMU-------
 
-conn = pripojeni_db()
+conn = connect_to_db()
 if conn:
-    overit_existenci_tabulky(conn)
-    hlavni_menu(conn)
-    conn.close()
+    
    
