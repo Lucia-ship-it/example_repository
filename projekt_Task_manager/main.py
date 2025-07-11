@@ -1,4 +1,5 @@
 from ukoly_input import add_task_input
+from ukoly_sql import create_table_if_not_exist
 import pymysql
 
 #spúšťací súbor (napr. menu, výber akcií)
@@ -21,5 +22,10 @@ def vytvor_pripojeni(): #slo by na test
         
 if __name__ == "__main__":
     conn = vytvor_pripojeni()
+    if create_table_if_not_exist(conn):
+        print("✅ Tabulka je připravená.")
+    else:
+        print("❌ Chyba při přípravě tabulky.")
+        
     add_task_input(conn)
     conn.close()
