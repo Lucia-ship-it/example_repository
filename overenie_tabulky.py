@@ -1,7 +1,7 @@
 import pymysql
 from datetime import date
 
-def pripojeni_db():
+def vytvor_pripojeni(): 
     try:
         conn = pymysql.connect(
                 host="mysql80.r4.websupport.sk",
@@ -10,54 +10,65 @@ def pripojeni_db():
                 password="79_|rBg[1F=`}cj|I%kc",
                 database="Task_manager_SQL"            
             )
-        print("\nPřipojení k databázi bylo úspěšné.")
+        print("\nPřipojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
+        
         return conn
     except pymysql.MySQLError as err:
-        print(f"Chyba při připojování: {err}")
+        print(f"❌ Chyba při připojování: {err}")   
+        return None 
 
-
-def overit_existenci_tabulky_selectem(conn):
+def create_table_if_not_exist(conn) -> bool:
+    """
+    Vytvorí tabulku Ukoly_test, ak ešte neexistuje.
+    Vracia True, ak bola vytvorená alebo už existovala.
+    Vracia False, ak nastala chyba.
+    """
     try:
         cursor = conn.cursor()
-        cursor.execute(f"SELECT 1 FROM Ukoly;") #Z tabulky se nevypisují žádná skutečná data, jen testuješ, že dotaz jde provést.
-        print(f"✅ Tabulka 'Ukoly' existuje.")
-        return True
-    except pymysql.MySQLError as err:
-        if "doesn't exist" in str(err):
-            print(f"ℹ️ Tabulka 'Ukoly' neexistuje.")
-            return False
-        else:
-            print(f"❌ Jiná chyba při ověřování tabulky: {err}")
-            return False
-    finally:
-        cursor.close()
 
-# Vytvoření tabulky Ukoly
-def vytvoreni_tabulky(conn):
-    try:
-        cursor = conn.cursor()
+        # Overenie, či už tabuľka existuje
+        cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
+        existuje = cursor.fetchone()
+
+        if existuje:
+            print("ℹ️  Tabulka 'Ukoly_test' již existuje.")
+            return True
+
+        # Ak neexistuje, vytvor ju
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Ukoly (
+            CREATE TABLE IF NOT EXISTS Ukoly_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 nazev VARCHAR(50) NOT NULL,
                 popis VARCHAR(255) NOT NULL,
                 stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
-                datum_vytvoreni DATETIME DEFAULT CURRENT_TIMESTAMP
+                datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
             );
         ''')
         conn.commit()
-        print("🆕 Tabulka 'Ukoly' byla vytvořena.")
+        print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
+        return True
+
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při vytváření tabulky: {err}")
+        return False
+
     finally:
         cursor.close()
 
+#test
+# vysledok = create_table_if_not_exist(conn)
+# assert vysledok is True  # ⬅️ overenie cez assert
+
+# # Overenie existencie tabuľky
+# with conn.cursor() as cursor:
+# cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
+# assert cursor.fetchone() is not None
+
+
 # Hlavní spuštění
-
-conn = pripojeni_db()
-if not overit_existenci_tabulky_selectem(conn):
-    vytvoreni_tabulky(conn)
+conn = vytvor_pripojeni()
+if create_table_if_not_exist(conn):
+        print("✅ Tabulka je připravená.")
 else:
-    print("✅ Tabulka je připravena.")
-
-# moje_tuple = (1, "ahoj", 3.14)
+    print("❌ Chyba při přípravě tabulky.")
+conn.close()

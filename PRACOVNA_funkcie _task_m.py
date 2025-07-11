@@ -1,8 +1,9 @@
 import pymysql
 from datetime import date
+# moje_tuple = (1, "ahoj", 3.14)
 
 # 2. vytvoreni_tabulky() – Vytvoření tabulky, pokud neexistuje
-# OK OK - Funkce vytvoří tabulku ukoly, pokud ještě neexistuje. create_table_if_not_exist(conn)
+# Funkce vytvoří tabulku ukoly, pokud ještě neexistuje. create_table_if_not_exist(conn)
 #  - Ověří existenci tabulky v databázi.
 
 def create_table_if_not_exist(conn): #slo by na test
@@ -21,6 +22,22 @@ def create_table_if_not_exist(conn): #slo by na test
         conn.commit()
     except pymysql.MySQLError as err:
         print(f"Chyba při vytváření tabulky: {err}")
+    finally:
+        cursor.close()
+
+def overit_existenci_tabulky_selectem(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT 1 FROM Ukoly;") #Z tabulky se nevypisují žádná skutečná data, jen testuješ, že dotaz jde provést.
+        print(f"✅ Tabulka 'Ukoly' existuje.")
+        return True
+    except pymysql.MySQLError as err:
+        if "doesn't exist" in str(err):
+            print(f"ℹ️ Tabulka 'Ukoly' neexistuje.")
+            return False
+        else:
+            print(f"❌ Jiná chyba při ověřování tabulky: {err}")
+            return False
     finally:
         cursor.close()
 
