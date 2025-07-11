@@ -10,4 +10,4 @@ conn = pymysql.connect(
 
 cursor=conn.cursor()
 # cursor.execute(
-#     "DROP TABLE Ukoly;")
+#     "DROP TABLE Ukoly_test;")
