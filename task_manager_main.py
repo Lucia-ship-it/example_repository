@@ -1,8 +1,28 @@
+import pymysql
+
+# FUNKCIE PRE PRIDANIE ULOHY
+
+def vytvor_pripojeni(): 
+    try:
+        conn = pymysql.connect(
+                host="mysql80.r4.websupport.sk",
+                port=3314,
+                user="EsPMMROq",
+                password="79_|rBg[1F=`}cj|I%kc",
+                database="Task_manager_SQL"            
+            )
+        print("\nPřipojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
+        
+        return conn
+    except pymysql.MySQLError as err:
+        print(f"❌ Chyba při připojování: {err}")   
+        return None 
+    
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
-        (nazev_ukolu.strip, popis_ukolu.strip)
+        (nazev_ukolu.strip(), popis_ukolu.strip())
         )
     conn.commit()
     cursor.close()
@@ -12,7 +32,7 @@ def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> ozn
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
         return ""
-    return f"{nazev_ukolu}: {popis_ukolu}"  
+    return f"{nazev_ukolu}: {popis_ukolu}" 
 
 
 def add_task_input(conn):
@@ -20,11 +40,11 @@ def add_task_input(conn):
         nazev_ukolu = input("Zadejte název úkolu: ").strip()
         popis_ukolu = input("Zadejte popis úkolu: ").strip()
 
-        vysledok = add_task_overenie_input(conn, nazev_ukolu, popis_ukolu)
+        vysledok = add_task_overenie_input(nazev_ukolu, popis_ukolu)
 
         if vysledok:
             print(f"\n✅ Úkol přidán: {vysledok}")
-            add_task_into_sql()
+            add_task_into_sql(conn,nazev_ukolu, popis_ukolu)
             break
         else:
             print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
@@ -37,3 +57,9 @@ def add_task_input(conn):
 # def test_pridat_ukol_vstupy_prazdne():
 #     result = pridat_ukol_vstupy(None, "   ", "  ")
 #     assert result == ""
+
+#--------spustenie-------
+if __name__ == "__main__":
+    conn = vytvor_pripojeni()
+    add_task_input(conn)
+    conn.close()
