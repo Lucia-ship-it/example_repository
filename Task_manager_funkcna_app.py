@@ -59,7 +59,7 @@ def vytvoreni_tabulky(conn):
             nazev VARCHAR (50) NOT NULL,
             popis VARCHAR (255) NOT NULL,
             stav  ENUM ('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno', 
-            datum_vytvoreni DATETIME DEFAULT CURRENT_TIMESTAMP
+            datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
             );
         ''')
         print("✅ Tabulka 'Ukoly' je vytvořena.")
@@ -183,14 +183,15 @@ def pridat_ukol_sql(conn):
 # OK Filtr: Zobrazí pouze úkoly se stavem "Nezahájeno" nebo "Probíhá".
 # OK Pokud nejsou žádné úkoly, zobrazí informaci, že seznam je prázdný.
 def zobrazit_ukoly(conn):
-    print("\nSeznam všech úkolů:") 
+    print("\n") 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(
         "SELECT id, nazev, popis, stav FROM Ukoly;"
         )
     ukoly_vsechny = cursor.fetchall()
     if len(ukoly_vsechny) == 0:
-        print("Seznam úkolů je prázdný")
+        print("Seznam je prázdný")
+        return
     for ukol in ukoly_vsechny:
         print(ukol)
 
