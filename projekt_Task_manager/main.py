@@ -22,10 +22,12 @@ def vytvor_pripojeni(): #slo by na test
         
 if __name__ == "__main__":
     conn = vytvor_pripojeni()
-    if create_table_if_not_exist(conn):
-        print("✅ Tabulka je připravená.")
+    if conn:
+        if create_table_if_not_exist(conn):
+            print("✅ Tabulka je připravená.")
+        else:
+            print("❌ Chyba při přípravě tabulky.")
     else:
-        print("❌ Chyba při přípravě tabulky.")
-        
-    add_task_input(conn)
+        print("❌ Nepodařilo se připojit k databázi.")
+   
     conn.close()
