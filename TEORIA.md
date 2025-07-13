@@ -36,3 +36,19 @@ projekt/
 Napíšeš funkciu → napr. kontrola_id_status
 Vyskúšaš ju cez pytest v test_ukoly.py
 Ak funguje, použiješ ju v main.py pri zadávaní úlohy
+
+
+Testy budou pracovat s hlavní databází nebo s testovací databází. Testovací data se budou dynamicky přidávat.Každá funkce musí mít 2 testy: 
+1. Pozitivní test – Ověří správnou funkčnost operace.
+2. Negativní test – Ověří, jak program reaguje na neplatné vstupy.
+
+V zadání „Testovací data se budou dynamicky přidávat“ znamená, že během běhu testů (tedy dynamicky, ne předem) budou do databáze vkládána testovací data přímo testovacím kódem.
+Co to znamená v praxi?
+Testy nepoužívají jen statická data, která jsou už předem v databázi.
+
+Místo toho testy při spuštění sami vloží potřebná data do databáze (například vložením záznamů přes SQL příkazy nebo pomocí ORM).
+
+Po dokončení testu se často data zase vymažou (či databáze resetuje), aby testy byly izolované a neměly vliv na další testy.
+
+!!! funkčnost operací: přidání, aktualizace a odstranění úkolů pomocí pytest
+nakonci zmazat testovacie data
