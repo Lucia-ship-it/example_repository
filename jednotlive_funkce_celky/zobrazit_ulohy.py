@@ -55,7 +55,19 @@ def create_table_if_not_exist(conn) -> bool:
     finally:
         cursor.close()
 
-#----------NOVA FUNKCIA ZOBRAZIT UKOLY ------        
+#----------NOVA FUNKCIA ZOBRAZIT UKOLY ------       
+def get_all_tasks_moznost_filtra():
+    moznost_filtru = input("Jestli chcete zobrazit všechny úkoly, napište: 'vše', jestli chcete zobrazit pouze nedokončené, napište: 'filtr'?").strip()
+    if moznost_filtru == 'vše':
+        get_all_tasks(conn)
+        return
+    elif moznost_filtru == 'filtr':
+        data_filter(conn)
+        return
+    else:
+        print("Neplatná volba, zkuste to znovu.")
+        return
+     
 def get_all_tasks(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
