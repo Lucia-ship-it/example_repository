@@ -18,6 +18,8 @@ def vytvor_pripojeni():
         print(f"❌ Chyba při připojování: {err}")   
         return None 
     
+#-----------NOVA ULOHA--------
+    
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
     cursor = conn.cursor()
     cursor.execute(

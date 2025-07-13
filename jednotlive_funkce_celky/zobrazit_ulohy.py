@@ -4,11 +4,11 @@ from datetime import date
 def vytvor_pripojeni(): 
     try:
         conn = pymysql.connect(
-                host="mysql80.r4.websupport.sk",
-                port=3314,
-                user="EsPMMROq",
-                password="79_|rBg[1F=`}cj|I%kc",
-                database="Task_manager_SQL"            
+            host="mysql80.r4.websupport.sk",
+            port=3314,
+            user="EsPMMROq",
+            password="79_|rBg[1F=`}cj|I%kc",
+            database="Task_manager_SQL"
             )
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
         
@@ -17,7 +17,6 @@ def vytvor_pripojeni():
         print(f"❌ Chyba při připojování: {err}")   
         return None 
     
-#-----------------OVERENIE/VYTVORENIE TABULKY---------------   
 def create_table_if_not_exist(conn) -> bool:
     """
     Vytvorí tabulku Ukoly_test, ak ešte neexistuje.
@@ -56,39 +55,7 @@ def create_table_if_not_exist(conn) -> bool:
     finally:
         cursor.close()
 
-#-------------------FUNKCIA: PRIDAJ UKOL---------------
-def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
-        (nazev_ukolu.strip(), popis_ukolu.strip())
-        )
-    conn.commit()
-    cursor.close()
-
-def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> oznacuje, ze funkccia vrati retazec. 
-    nazev_ukolu = nazev_ukolu.strip()
-    popis_ukolu = popis_ukolu.strip()
-    if not nazev_ukolu or not popis_ukolu:
-        return ""
-    return f"{nazev_ukolu}: {popis_ukolu}" 
-   
-def add_task_input(conn):
-    while True:
-        nazev_ukolu = input("Zadejte název úkolu: ").strip()
-        popis_ukolu = input("Zadejte popis úkolu: ").strip()
-
-        vysledok = add_task_overenie_input(nazev_ukolu, popis_ukolu)
-
-        if vysledok:
-            print(f"\n✅ Úkol přidán: {vysledok}")
-            add_task_into_sql(conn,nazev_ukolu, popis_ukolu)
-            break
-        else:
-            print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
-
-#-------------------FUNKCIA ZOBRAZIT UKOLy-----------------
-
+#----------NOVA FUNKCIA ZOBRAZIT UKOLY ------        
 def get_all_tasks(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -118,21 +85,13 @@ def data_filter(conn):
     finally:
         cursor.close()
 
-
-
-#-------------------FUNCIA AKTUALIZACIA UKOLU----------------
-
-
-#---------------------FUNKCIA ZMAZANIE ULOHY -------------------
-
-
-
+#---------------------------------------------
+#v MAIN zobrazit pouzivatelovi
 
 conn = vytvor_pripojeni()
 if conn:
     if create_table_if_not_exist(conn):
             print("✅ Tabulka je připravená.\n")
-            add_task_input(conn)
             get_all_tasks(conn)
     else:
         print("❌ Chyba při přípravě tabulky.")
@@ -140,3 +99,83 @@ if conn:
     conn.close()
 else:
     print("❌ Připojení selhalo.")
+
+
+
+
+# from ukoly_sql import get_all_tasks
+
+# def test_get_all_tasks_not_empty():
+#     conn = vytvor_pripojeni()
+#     tasks = get_all_tasks(conn)
+#     assert isinstance(tasks, list)
+#     assert all("id" in task and "stav" in task for task in tasks)
+#     conn.close()
+
+
+# from ukoly_sql import data_filter
+
+# def test_data_filter_returns_only_not_done_tasks():
+#     conn = vytvor_pripojeni()
+#     filtered = data_filter(conn)
+#     assert all(task["stav"] in ["Nezahájeno", "Probíhá"] for task in filtered)
+#     conn.close()
+
+# from ukoly_sql import get_all_tasks
+# from pripojeni import vytvor_pripojeni
+
+# def test_get_all_tasks_has_some_data():
+#     conn = vytvor_pripojeni()
+#     tasks = get_all_tasks(conn)
+
+#     assert isinstance(tasks, list)
+#     assert len(tasks) > 0  # ✅ overí, že zoznam nie je prázdny
+
+#     conn.close()
+
+# def test_get_all_tasks_not_empty():
+#     conn = vytvor_pripojeni()
+#     tasks = get_all_tasks(conn)
+
+#     assert len(tasks) > 0, "❌ Zoznam úloh je prázdny, očakávané aspoň 1 úloha."
+
+
+
+
+
+
+
+
+
+#PRIDANIE, ZOBRAZENIE, ZMAZANIE
+# 
+# from ukoly_sql import get_all_tasks
+# from pripojeni import vytvor_pripojeni
+
+# def test_get_all_tasks_with_temp_data():
+#     conn = vytvor_pripojeni()
+#     cursor = conn.cursor()
+
+#     # 🔧 SETUP – vloženie testovacej úlohy
+#     cursor.execute(
+#         "INSERT INTO Ukoly_test (nazev, popis, stav) VALUES (%s, %s, %s);",
+#         ("Testovací úkol", "Toto je test", "Nezahájeno")
+#     )
+#     conn.commit()
+
+#     # Získanie ID testovacieho záznamu
+#     cursor.execute("SELECT LAST_INSERT_ID();")
+#     test_id = cursor.fetchone()[0]
+
+#     # 🧪 TEST
+#     tasks = get_all_tasks(conn)
+#     assert any(task["id"] == test_id for task in tasks), "Testovací úkol sa nenašiel v zozname."
+
+#     # 🧹 TEARDOWN – zmazanie testovacieho záznamu
+#     cursor.execute("DELETE FROM Ukoly_test WHERE id = %s;", (test_id,))
+#     conn.commit()
+
+#     cursor.close()
+#     conn.close()
+
+
