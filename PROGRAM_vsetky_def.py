@@ -89,6 +89,21 @@ def add_task_input(conn):
             print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
 
 #-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
+    
+def get_all_tasks_moznost_filtra(conn, moznost_filtru=None):
+    if moznost_filtru is None:
+        moznost_filtru = input("Zadejte 'vše' nebo 'filtr': ").strip()
+    
+    if moznost_filtru == 'vše':
+        get_all_tasks(conn)
+    
+    elif moznost_filtru == 'filtr':
+        data_filter(conn)
+        
+    else:
+        print("Neplatná volba")
+        return
+        
 
 def get_all_tasks(conn):
     try:
@@ -106,7 +121,6 @@ def get_all_tasks(conn):
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
-        return []
     finally:
         cursor.close()
 
@@ -116,7 +130,15 @@ def data_filter(conn):
         cursor.execute(
             "SELECT id, nazev, popis, stav FROM Ukoly_test WHERE stav IN ('Nezahájeno', 'Probíhá');"
         )
-        return cursor.fetchall()
+        data = cursor.fetchall()
+
+        if data:
+            print("\n📋 Seznam nedokončených úkolů:")
+            for da in data:
+                print(da)
+        else:
+            print("📭 Nemáte nedokončené úkoly.")
+        return data
     finally:
         cursor.close()
 
@@ -233,21 +255,43 @@ def delete_task_by_id(conn, task_id) -> bool:
         cursor.close()
 
 #=======FUNKCIA HLAVNEHO MENU========
+def hlavni_menu(conn):
+   
+    while True:
+        print("\nSprávce úkolů - Hlavní menu")
+        print("1. Přidat úkol")
+        print("2. Zobrazit všechny úkoly")
+        print("3. Aktualizovat stav úkolu")
+        print("4. Odstranit úkol")
+        print("5. Ukončit program")
 
+        vyber_cisla=(input("Vyberte možnost (1-5):"))
+                 
+        if vyber_cisla == "1":
+            print("\nPřidání nového úkolu")
+            add_task_input(conn)
+        elif vyber_cisla == "2":
+            print("\n")
+            get_all_tasks_moznost_filtra(conn, moznost_filtru=None)
+        elif vyber_cisla == "3":
+            print("\nVolba Aktualizovat stav úkolu:")
+            zmen_stav_ukolu_input(conn)
+        elif vyber_cisla == "4":
+            print("\nVolba Odstranění úkolu:")
+            odstraneni_ukolu_input(conn)
+        elif vyber_cisla == "5":
+            print("\nKonec programu, naschledanou.👋\n")
+            exit()
+        else:
+            print("\nZadejte správnou volbu menu.")
 
-
-
-
-
+    
 #--------SPUSTENIE
 conn = vytvor_pripojeni()
 if conn:
     if create_table_if_not_exist(conn):
             print("✅ Tabulka je připravená.\n")
-            add_task_input(conn)
-            get_all_tasks(conn)
-            zmen_stav_ukolu_input(conn)
-            odstraneni_ukolu_input(conn)
+            hlavni_menu(conn)
     else:
         print("❌ Chyba při přípravě tabulky.")
         
