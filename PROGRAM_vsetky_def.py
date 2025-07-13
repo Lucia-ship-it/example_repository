@@ -93,15 +93,15 @@ def get_all_tasks(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
-        tasks = cursor.fetchall()  # ✅ dá sa testovať pomocou assert
-        # return tasks
+        tasks = cursor.fetchall()  #  dá sa testovať pomocou assert
+        
         if tasks:
             print("\n📋 Seznam všech úkolů:")
             for task in tasks:
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
-            return tasks
+        return tasks
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
@@ -232,22 +232,6 @@ def delete_task_by_id(conn, task_id) -> bool:
         cursor.close()
 
 #--------SPUSTENIE
-conn = vytvor_pripojeni()
-if conn:
-    if create_table_if_not_exist(conn):
-            print("✅ Tabulka je připravená.\n")
-            odstraneni_ukolu_input(conn)
-
-    else:
-        print("❌ Chyba při přípravě tabulky.")
-        
-    conn.close()
-else:
-    print("❌ Připojení selhalo.")
-
-
-
-
 conn = vytvor_pripojeni()
 if conn:
     if create_table_if_not_exist(conn):

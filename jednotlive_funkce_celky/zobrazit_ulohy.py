@@ -61,14 +61,14 @@ def get_all_tasks(conn):
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
         tasks = cursor.fetchall()  # ✅ dá sa testovať pomocou assert
-        # return tasks
+        
         if tasks:
             print("\n📋 Seznam všech úkolů:")
             for task in tasks:
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
-            return tasks
+        return tasks
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
