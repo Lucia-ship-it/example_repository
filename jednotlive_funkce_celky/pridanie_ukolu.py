@@ -34,7 +34,7 @@ def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> ozn
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
         return ""
-    return f"{nazev_ukolu}: {popis_ukolu}" 
+    return f"Nazev nového úkolu: {nazev_ukolu}, popis: {popis_ukolu}" 
 
 
 def add_task_input(conn):

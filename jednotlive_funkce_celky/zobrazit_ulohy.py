@@ -68,6 +68,7 @@ def get_all_tasks(conn):
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
+            return tasks
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")

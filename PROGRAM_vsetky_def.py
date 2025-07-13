@@ -71,7 +71,7 @@ def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> ozn
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
         return ""
-    return f"{nazev_ukolu}: {popis_ukolu}" 
+    return f"Nazev nového úkolu: {nazev_ukolu}, popis: {popis_ukolu}"  
    
 def add_task_input(conn):
     while True:
@@ -101,6 +101,7 @@ def get_all_tasks(conn):
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
+            return tasks
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
@@ -122,7 +123,10 @@ def data_filter(conn):
 
 #-------------------FUNCIA AKTUALIZACIA UKOLU----------------
 def zmen_stav_ukolu_input(conn):
-    get_all_tasks(conn)
+    tasks = get_all_tasks(conn)
+    if not tasks:
+        print("Není co aktualizovat.\n")
+        return
 
     while True:
         try:
@@ -195,6 +199,51 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
         cursor.close()    
 
 #---------------------FUNKCIA ZMAZANIE ULOHY -------------------
+def odstraneni_ukolu_input(conn):
+    tasks = get_all_tasks(conn)
+    if not tasks:
+        print("Není co mazať.\n")
+        return
+
+    while True:
+        try:
+            vyber_id = int(input("\nZadejte ID úkolu, který chcete smazat: ")) #vstup INT, tak hlaska na Value error.
+            if get_task_id(conn, vyber_id):
+                potvrdenie = input(f"Opravdu chcete smazat úkol s ID {vyber_id}? Pro potvrzení akce napište 'ano'): ").strip().lower()
+                if potvrdenie == 'ano':
+                    if delete_task_by_id(conn, vyber_id):
+                        print("✅ Úkol byl odstraněn.")
+                        return
+                else:
+                    print("Zrušeno uživatelem.")
+                    break
+            else:
+                print("❗ ID úkolu neexistuje.")
+        except ValueError:
+            print("❗ Prosím, zadejte platné číslo.")
+
+def delete_task_by_id(conn, task_id) -> bool:
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
+        conn.commit()
+        return cursor.rowcount > 0  # True ak sa niečo zmazalo
+    finally:
+        cursor.close()
+
+#--------SPUSTENIE
+conn = vytvor_pripojeni()
+if conn:
+    if create_table_if_not_exist(conn):
+            print("✅ Tabulka je připravená.\n")
+            odstraneni_ukolu_input(conn)
+
+    else:
+        print("❌ Chyba při přípravě tabulky.")
+        
+    conn.close()
+else:
+    print("❌ Připojení selhalo.")
 
 
 
@@ -206,6 +255,7 @@ if conn:
             add_task_input(conn)
             get_all_tasks(conn)
             zmen_stav_ukolu_input(conn)
+            odstraneni_ukolu_input(conn)
     else:
         print("❌ Chyba při přípravě tabulky.")
         
