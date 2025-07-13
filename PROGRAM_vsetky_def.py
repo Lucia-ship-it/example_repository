@@ -1,6 +1,7 @@
 import pymysql
 from datetime import date
 
+#--------1. pripojenie k db------
 def vytvor_pripojeni(): 
     try:
         conn = pymysql.connect(
@@ -17,7 +18,7 @@ def vytvor_pripojeni():
         print(f"❌ Chyba při připojování: {err}")   
         return None 
     
-#-----------------OVERENIE/VYTVORENIE TABULKY---------------   
+#-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
 def create_table_if_not_exist(conn) -> bool:
     """
     Vytvorí tabulku Ukoly_test, ak ešte neexistuje.
@@ -56,7 +57,7 @@ def create_table_if_not_exist(conn) -> bool:
     finally:
         cursor.close()
 
-#-------------------FUNKCIA: PRIDAJ UKOL---------------
+#-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
     cursor = conn.cursor()
     cursor.execute(
@@ -87,7 +88,7 @@ def add_task_input(conn):
         else:
             print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
 
-#-------------------FUNKCIA ZOBRAZIT UKOLy-----------------
+#-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
 
 def get_all_tasks(conn):
     try:
@@ -121,7 +122,7 @@ def data_filter(conn):
 
 
 
-#-------------------FUNCIA AKTUALIZACIA UKOLU----------------
+#-------------------6. FUNCIA AKTUALIZACIA UKOLU----------------
 def zmen_stav_ukolu_input(conn):
     tasks = get_all_tasks(conn)
     if not tasks:
@@ -198,7 +199,7 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
     finally:
         cursor.close()    
 
-#---------------------FUNKCIA ZMAZANIE ULOHY -------------------
+#---------------------7. FUNKCIA ZMAZANIE ULOHY -------------------
 def odstraneni_ukolu_input(conn):
     tasks = get_all_tasks(conn)
     if not tasks:
@@ -230,6 +231,13 @@ def delete_task_by_id(conn, task_id) -> bool:
         return cursor.rowcount > 0  # True ak sa niečo zmazalo
     finally:
         cursor.close()
+
+#=======FUNKCIA HLAVNEHO MENU========
+
+
+
+
+
 
 #--------SPUSTENIE
 conn = vytvor_pripojeni()
