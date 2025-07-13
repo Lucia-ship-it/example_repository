@@ -17,7 +17,6 @@ def vytvor_pripojeni():
         print(f"❌ Chyba při připojování: {err}")   
         return None 
     
-#-----------------OVERENIE/VYTVORENIE TABULKY---------------   
 def create_table_if_not_exist(conn) -> bool:
     """
     Vytvorí tabulku Ukoly_test, ak ešte neexistuje.
@@ -56,39 +55,6 @@ def create_table_if_not_exist(conn) -> bool:
     finally:
         cursor.close()
 
-#-------------------FUNKCIA: PRIDAJ UKOL---------------
-def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
-        (nazev_ukolu.strip(), popis_ukolu.strip())
-        )
-    conn.commit()
-    cursor.close()
-
-def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> oznacuje, ze funkccia vrati retazec. 
-    nazev_ukolu = nazev_ukolu.strip()
-    popis_ukolu = popis_ukolu.strip()
-    if not nazev_ukolu or not popis_ukolu:
-        return ""
-    return f"{nazev_ukolu}: {popis_ukolu}" 
-   
-def add_task_input(conn):
-    while True:
-        nazev_ukolu = input("Zadejte název úkolu: ").strip()
-        popis_ukolu = input("Zadejte popis úkolu: ").strip()
-
-        vysledok = add_task_overenie_input(nazev_ukolu, popis_ukolu)
-
-        if vysledok:
-            print(f"\n✅ Úkol přidán: {vysledok}")
-            add_task_into_sql(conn,nazev_ukolu, popis_ukolu)
-            break
-        else:
-            print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
-
-#-------------------FUNKCIA ZOBRAZIT UKOLy-----------------
-
 def get_all_tasks(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -108,19 +74,8 @@ def get_all_tasks(conn):
     finally:
         cursor.close()
 
-def data_filter(conn):
-    try:
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(
-            "SELECT id, nazev, popis, stav FROM Ukoly_test WHERE stav IN ('Nezahájeno', 'Probíhá');"
-        )
-        return cursor.fetchall()
-    finally:
-        cursor.close()
-
-
-
-#-------------------FUNCIA AKTUALIZACIA UKOLU----------------
+    
+#-----------AKTUALIZACIA--------
 def zmen_stav_ukolu_input(conn):
     get_all_tasks(conn)
 
@@ -171,6 +126,9 @@ def kontrola_id_status(conn, vyber_id) -> bool:
     if id_exist is None:
         return False
     return True
+
+    # if id_exist is None:
+    #     raise ValueError("Zadané ID neexistuje.")
     
 def update_task_status(conn, vyber_id, novy_stav) -> bool:
     povolene_stavy = ['Probíhá', 'Hotovo']
@@ -194,17 +152,11 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
     finally:
         cursor.close()    
 
-#---------------------FUNKCIA ZMAZANIE ULOHY -------------------
-
-
-
-
+#--------SPUSTENIE
 conn = vytvor_pripojeni()
 if conn:
     if create_table_if_not_exist(conn):
             print("✅ Tabulka je připravená.\n")
-            add_task_input(conn)
-            get_all_tasks(conn)
             zmen_stav_ukolu_input(conn)
     else:
         print("❌ Chyba při přípravě tabulky.")
@@ -212,3 +164,27 @@ if conn:
     conn.close()
 else:
     print("❌ Připojení selhalo.")
+
+
+
+#mozne testy
+# def test_kontrola_id_status_existujici(conn):
+#     assert kontrola_id_status(conn, 1) == True
+
+# def test_kontrola_id_status_neexistujici(conn):
+#     assert kontrola_id_status(conn, 9999) == False
+
+# def test_update_task_status_valid(conn):
+#     assert update_task_status(conn, 1, "Hotovo") == True
+
+# def test_update_task_status_neplatny_stav(conn):
+#     try:
+#         update_task_status(conn, 1, "Neznámy stav")
+#     except ValueError as e:
+#         assert str(e) == "Neplatný stav úkolu."
+
+# def test_update_task_status_neexistujuce_id(conn):
+#     try:
+#         update_task_status(conn, 9999, "Hotovo")
+#     except ValueError as e:
+#         assert str(e) == "Zadané ID neexistuje."
