@@ -61,10 +61,10 @@ conn = pymysql.connect(
 def test_get_all_tasks_positive(): #tu v zatvorke nesmie byt conn, lebo to berie ako fixture
     cursor=conn.cursor()
     cursor.execute(
-        "INSERT INTO Ukoly_test (nazev, popis) VALUES ("ukol pro seznam", "vytvoreni ukol aby seznam nebyl nikdy prazdny");
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro seznam', 'vytvoreni ukol aby seznam nebyl nikdy prazdny');"
         )
     conn.commit()
-                   
+
     tasks = get_all_tasks(conn)
 
     assert len(tasks) > 0  # očakávame, že sú tam nejaké tasky
