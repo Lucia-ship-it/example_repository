@@ -59,6 +59,9 @@ def create_table_if_not_exist(conn) -> bool:
 
 #-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
+    if not nazev_ukolu.strip() or not popis_ukolu.strip():
+        raise ValueError("Název a popis úkolu jsou povinné.")
+    
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
@@ -286,15 +289,16 @@ def hlavni_menu(conn):
             print("\nZadejte správnou volbu menu.")
 
     
-#--------SPUSTENIE
-conn = vytvor_pripojeni()
-if conn:
-    if create_table_if_not_exist(conn):
-            print("✅ Tabulka je připravená.\n")
-            hlavni_menu(conn)
+# --------SPUSTENIE
+if __name__ == "__main__": # Aby sa program spustil len vtedy, keď súbor spúšťaš priamo, ale nie pri importe (napr. z testov)
+    conn = vytvor_pripojeni()
+    if conn:
+        if create_table_if_not_exist(conn):
+                print("✅ Tabulka je připravená.\n")
+                hlavni_menu(conn)
+        else:
+            print("❌ Chyba při přípravě tabulky.")
+            
+        conn.close()
     else:
-        print("❌ Chyba při přípravě tabulky.")
-        
-    conn.close()
-else:
-    print("❌ Připojení selhalo.")
+        print("❌ Připojení selhalo.")

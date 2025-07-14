@@ -1,5 +1,7 @@
 import pymysql
 import pytest #instalacia: pip3 install -U pytest
+# spustenie = pytest podla_lekcie.py
+#  pytest podla_lekcie.py::test_example    
 from Projekt_2.Task_manager_SQL.py import create_table_if_not_exist
 
 #pytest podla lekciey.py - spustenie, lebo dokument sa nevola test_...
@@ -27,6 +29,13 @@ def pridani_ukolu_db(conn, nazev, popis):
     )
     conn.commit()
     cursor.close()
+# contacts = [{"name":"Luc", "phone":"8888888"},{"name":"Mat","phone":"77777"}]
+# def get_contact(name:str):
+#     for contact in contacts:
+#         if contacts["name"] == name:
+#             return(contact)
+# #pokud cyklus dobehol a nic nevratil, nech vrati None
+#     return None
 
 # def pridani_ukolu():
 #     while True: #osetrenie prazdneho vstupu
@@ -72,3 +81,7 @@ def test_pridani_ukolu_prazdny_popis():
 # def test_pocitanfffie():
 #     result = 1+1
 #     assert result != 9
+
+def test_example():
+    result = 1+1
+    assert result == 2
