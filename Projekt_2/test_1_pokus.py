@@ -1,8 +1,14 @@
 import pymysql
 import pytest
-from Projekt_2 import Task_manager_SQL
+from Projekt_2.Task_manager_SQL import add_task_into_sql
 
-
+conn = pymysql.connect(
+                host="mysql80.r4.websupport.sk",
+                port=3314,
+                user="EsPMMROq",
+                password="79_|rBg[1F=`}cj|I%kc",
+                database="Task_manager_SQL"            
+            )
 # 1. mozeme pridat ukol 1
 # 2. get contact ukol 1
 # 3. zmazat ukol 1

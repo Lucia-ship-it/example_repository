@@ -1,8 +1,8 @@
 import pymysql
 import pytest #instalacia: pip3 install -U pytest
-#from Task_manager_SQL.py import vytvoreni_tabulky
+from Projekt_2.Task_manager_SQL.py import create_table_if_not_exist
 
-#pytest prve_nacrty.py - spustenie, lebo dokument sa nevola test_...
+#pytest podla lekciey.py - spustenie, lebo dokument sa nevola test_...
 
 def pripojenie():
     conn = pymysql.connect(
