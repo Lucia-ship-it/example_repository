@@ -1,4 +1,5 @@
 import pytest
+from budovanie_programu import a3_PROGRAM_final
 
 
 # 1. mozeme pridat ukol 1
@@ -17,7 +18,7 @@ def get_contact(name:str):
 # pokud existuje, tak ho vytiskne
 # ak neexistuje, hodi neexistuje
 
-def pridani_ukolu_pozitivni_test():
+def test_pridani_ukolu_pozitivni():
     nazev_ukolu = input("zadej nazev ukolu: ") #zadej: Ukol1
     popis_ukolu= input("zadej popis ukolu: ") #zadej: popis k Ukol1
 
@@ -28,7 +29,7 @@ def pridani_ukolu_pozitivni_test():
     else:
         print("dany ukol neulozen")
 
-def pridani_ukolu_negativni_test():
+def test_pridani_ukolu_negativni_test():
     nazev_ukolu = input("zadej nazev ukolu: ") #zadej: Ukol1
     popis_ukolu= input("zadej popis ukolu: ") #zadej: 
 
