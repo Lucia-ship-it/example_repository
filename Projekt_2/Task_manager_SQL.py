@@ -1,8 +1,6 @@
 import pymysql
 from datetime import date
 
-#VYTVORENY A POUZIVANY KOD V PROJEKT 2
-
 #--------1. pripojenie k db------
 def vytvor_pripojeni(): 
     try:

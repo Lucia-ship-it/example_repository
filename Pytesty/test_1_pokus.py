@@ -1,5 +1,6 @@
+import pymysql
 import pytest
-from budovanie_programu import a3_PROGRAM_final
+from Projekt_2 import Task_manager_SQL
 
 
 # 1. mozeme pridat ukol 1
