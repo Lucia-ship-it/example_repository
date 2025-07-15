@@ -16,14 +16,14 @@ conn = pymysql.connect(
 
 
 # --------- test pro PRIDANI UKOLU ---------
-
+@pytest.mark.add
 def test_add_task_overenie_input_positive():
     result = add_task_overenie_input(nazev_ukolu="ukol pro input", popis_ukolu="overenie funkcnosti string vstupu")
     if result is not None:
         print("✅ Spravne overenie zadanych vstupov")
     assert result, f"❌ Necakana chyba pri spravnom zadani nazvu a popisu" 
 
-
+@pytest.mark.add
 def test_add_task_overenie_input_negative():
     result = add_task_overenie_input(nazev_ukolu="ukol pro input", popis_ukolu="")
     if result is None:
@@ -31,7 +31,7 @@ def test_add_task_overenie_input_negative():
 
     assert result is None, f"❌ Zapisuje ukol aj pri prazdnom vstupe" 
 
-
+@pytest.mark.add
 def test_add_task_positive(): 
     add_task_into_sql(conn,nazev_ukolu="ulozenie ulohy do tabulky", popis_ukolu="overenie, ze test vytvori ulohu v tabulke")
     
@@ -49,7 +49,7 @@ def test_add_task_positive():
     assert result["popis"] == "overenie, ze test vytvori ulohu v tabulke"
     assert result is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
 
-
+@pytest.mark.add
 def test_add_task_negative():
 
     with pytest.raises(ValueError):
@@ -70,7 +70,7 @@ def test_add_task_negative():
 
 #------------- testy na AKTUALIZOVAT UKOL -------
 
-
+@pytest.mark.update
 def test_get_task_id_positive():
     cursor=conn.cursor()
     cursor.execute(
@@ -88,13 +88,14 @@ def test_get_task_id_positive():
     result = get_task_id(conn, nove_id)
     assert result == nove_id, f"❌ Očakávané ID {nove_id}, ale vrátené: {result}"
 
-
+@pytest.mark.update
 def test_get_task_id_negative():
     neexistujuce_id = 999999
 
     result = get_task_id(conn, neexistujuce_id)
     assert result is None
 
+@pytest.mark.update
 def test_get_task_id_2_negative():
     cursor = conn.cursor(pymysql.cursors.DictCursor) #aby si vedel vybrat kluc
     cursor.execute("SELECT id FROM Ukoly_test ORDER BY id DESC LIMIT 1;")
@@ -114,7 +115,7 @@ def test_get_task_id_2_negative():
 
     assert result is None, f"❌ Očakávané 'None' pre ID {max_id}, ale vrátené: {result}"
 
-
+@pytest.mark.update
 def test_kontrola_id_status_positive(): #funkcia v kode vracia True ak sa nachazda v tabulke a  false ak nenajde take id
 
     cursor=conn.cursor()
@@ -130,13 +131,14 @@ def test_kontrola_id_status_positive(): #funkcia v kode vracia True ak sa nachaz
 
     assert result is True, f"❌ Očakávané True pre existujúce ID {nove_id}, vrátené: {result}"
 
+@pytest.mark.update
 def test_kontrola_id_status_negative():
     neexistujuce_id= -1
     result = kontrola_id_status(conn, neexistujuce_id)
 
     assert result is False, f"❌ Očakávané False pre zaporne ID, vrátené: {result}"
 
-
+@pytest.mark.update
 def test_update_task_status_get_id_positive():
     zadanie_stavu = "Probíhá"
 
@@ -152,7 +154,7 @@ def test_update_task_status_get_id_positive():
     
     assert result is True, f"❌ Očakávané True, zadali sme povoleny stav, hlasi {result}"
 
-   
+@pytest.mark.update  
 def test_update_task_status_get_id_positive():
     zadanie_stavu = "Hotovo"
 
@@ -164,12 +166,7 @@ def test_update_task_status_get_id_positive():
         
     nove_id = cursor.lastrowid
 
-    cursor.execute(
-        "SELECT id, nazev, stav FROM Ukoly_test WHERE id=%s;",
-        (nove_id,)
-    )
-    novy_ukol = cursor.fetchone()
-    cursor.close()
+
 
     result = update_task_status (conn, nove_id, zadanie_stavu)
     print(result)
@@ -183,7 +180,7 @@ def test_update_task_status_get_id_positive():
     skuska = cursor.fetchone()
     print(skuska)
 
-
+@pytest.mark.update
 def test_update_task_status_get_id_negative():
     zadanie_stavu = "Nevim"
 
@@ -203,7 +200,7 @@ def test_update_task_status_get_id_negative():
     #poznamka pre mna: assert sa nepouzije, lebo funkcia nema co vratit, vyhodi vynimnku
 
 # ------------- testzy na ODSTRANENIE UKOLU -------
-
+@pytest.mark.delete
 def test_delete_task_by_id_positive(): #vrati T/F
     cursor=conn.cursor()
     cursor.execute(
@@ -224,7 +221,7 @@ def test_delete_task_by_id_positive(): #vrati T/F
     assert result is True, f"❌  ocakavme true, ze sa uloha zmaze a vyslo {result}"
 
 
-
+@pytest.mark.delete
 def test_delete_task_by_id_negative():
     cursor = conn.cursor()
     cursor.execute("DELETE FROM Ukoly_test WHERE id=-1;")
@@ -234,7 +231,8 @@ def test_delete_task_by_id_negative():
     assert result == False, f"❌  ocakavme False pri zapornom id a vyslo {result}"
 
 
-# ------------- test na ZOBRAZIT UKOLY -------
+# ------------- test na ZOBRAZIT UKOLY ------- pomylila som sa, ale ked uz boli vyrobene, necham ich tu. aspon som si to precvicila
+
 def test_get_all_tasks_positive(): #tu v zatvorke nesmie byt conn, lebo to berie ako fixture
     cursor=conn.cursor()
     cursor.execute(
