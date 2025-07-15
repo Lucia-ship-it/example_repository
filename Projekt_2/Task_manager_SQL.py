@@ -74,7 +74,7 @@ def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> ozn
     nazev_ukolu = nazev_ukolu.strip()
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
-        return ""
+        return None
     return f"Nazev nového úkolu: {nazev_ukolu}, popis: {popis_ukolu}"  
    
 def add_task_input(conn):
@@ -120,7 +120,8 @@ def get_all_tasks(conn):
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
-        return tasks
+            return None
+        return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
@@ -173,6 +174,7 @@ def zmen_stav_ukolu_input(conn):
 
     if update_task_status(conn, vyber_id, novy_stav):
         print("✅ Úkol byl úspěšně aktualizován.")
+        
 
 def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
     """
