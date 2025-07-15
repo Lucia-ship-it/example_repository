@@ -67,6 +67,15 @@ def test_add_task_negative():
 
     assert result is None, f"❌ocekavano None, ve skutecnosti {result}"
 
+# def test_add_task_duplicitne_id():
+#     cursor = conn.cursor()
+#     cursor.execute(
+#         "INSERT INTO uzivatele (id, nazev, email) VALUES (1, 'duplicitni id', 'negativni test, uol nesmi byt zapsan, pretoze id mame ako default auto increment');"
+#     )
+#     result = cursor.fetchone()
+#     print (result)
+
+#     assert result is False
 
 #------------- testy na AKTUALIZOVAT UKOL -------
 
@@ -114,6 +123,7 @@ def test_get_task_id_2_negative():
         print(f"✅ Zadane id: {up_max_id} neexistuje podla ocakavania")
 
     assert result is None, f"❌ Očakávané 'None' pre ID {max_id}, ale vrátené: {result}"
+
 
 @pytest.mark.update
 def test_kontrola_id_status_positive(): #funkcia v kode vracia True ak sa nachazda v tabulke a  false ak nenajde take id
