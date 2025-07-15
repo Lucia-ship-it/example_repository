@@ -255,7 +255,7 @@ def delete_task_by_id(conn, task_id) -> bool:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
         conn.commit()
-        return cursor.rowcount > 0  # True ak sa niečo zmazalo
+        return cursor.rowcount > 0  # vracia počet riadkov, ktoré boli ovplyvnené posledným SQL príkazom. True ak sa niečo zmazalo
     finally:
         cursor.close()
 
