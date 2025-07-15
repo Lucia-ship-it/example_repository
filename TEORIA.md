@@ -52,3 +52,5 @@ Po dokončení testu se často data zase vymažou (či databáze resetuje), aby 
 
 !!! funkčnost operací: přidání, aktualizace a odstranění úkolů pomocí pytest
 nakonci zmazat testovacie data
+
+cd /Users/luciakobzova/example_repository/Projekt_2
