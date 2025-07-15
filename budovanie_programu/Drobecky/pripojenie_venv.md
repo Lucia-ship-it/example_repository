@@ -1,9 +1,9 @@
 na pripojenie pymysql
         
         # Open the integrated terminal in VS Code.
-        # Run python3 -m venv .venv to create a virtual environment.
-        # Activate it with source .venv/bin/activate.
-        # Run pip install PyMySQL inside the activated environment.
+        # python3 -m venv .venv  = to create a virtual environment.
+        #  source .venv/bin/activate =Activate it with
+        #  pip install PyMySQL = Run inside the activated environment.
 
 1. Virtuálne prostredie nie je aktivované pri spustení programu
 

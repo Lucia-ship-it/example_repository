@@ -1,4 +1,6 @@
 ----------------✅ Modulárne programovanie + testovateľnosť-------------
+instalacia venv a pip
+instalacia pytest pip3 install -U pytest
 
 1. napisem si funkcie, ktore nepouzivaju input ani print - lahko otestovatelne
 po logickych kusoch, kludne do zvlast suboru
