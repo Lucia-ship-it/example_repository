@@ -95,20 +95,17 @@ def add_task_input(conn):
     
 def get_all_tasks_moznost_filtra(conn, moznost_filtru=None):
     if moznost_filtru is None:
-        moznost_filtru = input("Zadejte 'vše' nebo 'filtr': ").strip()
+        moznost_filtru = input("\nV případě, že si přejete zobrazit pouze nedokončené úkoly, napište 'filtr': \n").strip()
     
-    if moznost_filtru == 'vše':
-        get_all_tasks(conn)
-    
-    elif moznost_filtru == 'filtr':
+    if moznost_filtru == 'filtr':
         data_filter(conn)
         
     else:
-        print("Neplatná volba")
+        print("Zrušeno uživatelem.")
         return
         
 
-def get_all_tasks(conn):
+def get_all_tasks(conn, filtruj=False):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly;")
@@ -121,12 +118,18 @@ def get_all_tasks(conn):
         else:
             print("📭 Seznam úkolů je prázdný.")
             return None
+        
+        if filtruj == True:
+            get_all_tasks_moznost_filtra(conn)
+ #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
         return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
     finally:
         cursor.close()
+
+   
 
 def data_filter(conn):
     try:
@@ -277,7 +280,7 @@ def hlavni_menu(conn):
             add_task_input(conn)
         elif vyber_cisla == "2":
             print("\n")
-            get_all_tasks_moznost_filtra(conn, moznost_filtru=None)
+            get_all_tasks(conn, filtruj=True)
         elif vyber_cisla == "3":
             print("\nVolba Aktualizovat stav úkolu:")
             zmen_stav_ukolu_input(conn)
