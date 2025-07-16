@@ -1,8 +1,6 @@
 import pymysql
 from datetime import date
 
-
-
 #--------1. pripojenie k db------
 def vytvor_pripojeni(): 
     try:
@@ -61,6 +59,9 @@ def create_table_if_not_exist(conn) -> bool:
 
 #-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
+    if not nazev_ukolu.strip() or not popis_ukolu.strip():
+        raise ValueError("Název a popis úkolu jsou povinné.")
+    
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES (%s,%s);", 
@@ -73,7 +74,7 @@ def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> ozn
     nazev_ukolu = nazev_ukolu.strip()
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
-        return ""
+        return None
     return f"Nazev nového úkolu: {nazev_ukolu}, popis: {popis_ukolu}"  
    
 def add_task_input(conn):
@@ -94,20 +95,17 @@ def add_task_input(conn):
     
 def get_all_tasks_moznost_filtra(conn, moznost_filtru=None):
     if moznost_filtru is None:
-        moznost_filtru = input("Zadejte 'vše' nebo 'filtr': ").strip()
+        moznost_filtru = input("\nV případě, že si přejete zobrazit pouze nedokončené úkoly, napište 'filtr': \n").strip()
     
-    if moznost_filtru == 'vše':
-        get_all_tasks(conn)
-    
-    elif moznost_filtru == 'filtr':
+    if moznost_filtru == 'filtr':
         data_filter(conn)
         
     else:
-        print("Neplatná volba")
+        print("Zrušeno uživatelem.")
         return
         
 
-def get_all_tasks(conn):
+def get_all_tasks(conn, filtruj=False):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
@@ -119,7 +117,13 @@ def get_all_tasks(conn):
                 print(task)
         else:
             print("📭 Seznam úkolů je prázdný.")
-        return tasks
+            return None
+        
+
+        if filtruj == True:
+            get_all_tasks_moznost_filtra(conn)
+ #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
+        return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
 
     except pymysql.MySQLError as err:
         print(f"❌ Chyba při načítání úkolů: {err}")
@@ -172,6 +176,7 @@ def zmen_stav_ukolu_input(conn):
 
     if update_task_status(conn, vyber_id, novy_stav):
         print("✅ Úkol byl úspěšně aktualizován.")
+        
 
 def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
     """
@@ -252,7 +257,7 @@ def delete_task_by_id(conn, task_id) -> bool:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
         conn.commit()
-        return cursor.rowcount > 0  # True ak sa niečo zmazalo
+        return cursor.rowcount > 0  # vracia počet riadkov, ktoré boli ovplyvnené posledným SQL príkazom. True ak sa niečo zmazalo
     finally:
         cursor.close()
 
@@ -274,7 +279,7 @@ def hlavni_menu(conn):
             add_task_input(conn)
         elif vyber_cisla == "2":
             print("\n")
-            get_all_tasks_moznost_filtra(conn, moznost_filtru=None)
+            get_all_tasks(conn, filtruj=True)
         elif vyber_cisla == "3":
             print("\nVolba Aktualizovat stav úkolu:")
             zmen_stav_ukolu_input(conn)
@@ -288,15 +293,16 @@ def hlavni_menu(conn):
             print("\nZadejte správnou volbu menu.")
 
     
-#--------SPUSTENIE
-conn = vytvor_pripojeni()
-if conn:
-    if create_table_if_not_exist(conn):
-            print("✅ Tabulka je připravená.\n")
-            hlavni_menu(conn)
+# --------SPUSTENIE
+if __name__ == "__main__": # Aby sa program spustil len vtedy, keď súbor spúšťaš priamo, ale nie pri importe (napr. z testov)
+    conn = vytvor_pripojeni()
+    if conn:
+        if create_table_if_not_exist(conn):
+                print("✅ Tabulka je připravená.\n")
+                hlavni_menu(conn)
+        else:
+            print("❌ Chyba při přípravě tabulky.")
+            
+        conn.close()
     else:
-        print("❌ Chyba při přípravě tabulky.")
-        
-    conn.close()
-else:
-    print("❌ Připojení selhalo.")
+        print("❌ Připojení selhalo.")
