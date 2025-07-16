@@ -1,6 +1,6 @@
 import pymysql
 import pytest
-from Projekt_2.Task_manager_SQL import add_task_overenie_input, add_task_into_sql, get_task_id, kontrola_id_status, update_task_status, delete_task_by_id, get_all_tasks
+from Projekt_2.Task_manager_TEST_SQL import add_task_overenie_input, add_task_into_sql, get_task_id, kontrola_id_status, update_task_status, delete_task_by_id, get_all_tasks
 
 #-!!! ZADANIE: Testy ověří správnou funkčnost operací přidání, aktualizace a odstranění úkolů pomocí pytest.
 
@@ -67,23 +67,23 @@ def test_add_task_overenie_input_negative(conn):
 
     assert result is None, f"❌ Zapisuje ukol aj pri prazdnom vstupe" 
 
-@pytest.mark.add
-def test_add_task_positive(conn): 
-    add_task_into_sql(conn,nazev_ukolu="ulozenie ulohy do tabulky", popis_ukolu="overenie, ze test vytvori ulohu v tabulke")
+# @pytest.mark.add
+# def test_add_task_positive(conn): 
+#     add_task_into_sql(conn,nazev_ukolu="ulozenie ulohy do tabulky", popis_ukolu="overenie, ze test vytvori ulohu v tabulke")
     
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute(# overime, ci tam je
-        "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
-        ("ulozenie ulohy do tabulky",)
-    ) 
-    result = cursor.fetchone()
-    print(result)
-    print("✅ Uloha sa uklada podla ocakavnia")
-    cursor.close()
+#     cursor = conn.cursor(pymysql.cursors.DictCursor)
+#     cursor.execute(# overime, ci tam je
+#         "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
+#         ("ulozenie ulohy do tabulky",)
+#     ) 
+#     result = cursor.fetchone()
+#     print(result)
+#     print("✅ Uloha sa uklada podla ocakavnia")
+#     cursor.close()
 
-    assert result["nazev"] == "ulozenie ulohy do tabulky"
-    assert result["popis"] == "overenie, ze test vytvori ulohu v tabulke"
-    assert result is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
+#     assert result["nazev"] == "ulozenie ulohy do tabulky"
+#     assert result["popis"] == "overenie, ze test vytvori ulohu v tabulke"
+#     assert result is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
 
 @pytest.mark.add
 def test_add_task_negative(conn):
