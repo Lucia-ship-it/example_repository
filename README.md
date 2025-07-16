@@ -7,4 +7,10 @@ Projekt číslo 1 -> program s funkciami ku kontrole sa nachádza v súbore Proj
 
 
  
- Projekt číslo 2 -> program je v procese tvorby 
+ Projekt číslo 2 -> tento projekt je v zložke Projekt_2
+  - hlavným programom pre správu úloh je dokument pod názvom: Task_manager_MAIN_SQL.py
+       - dostupná URL: https://github.com/Lucia-ship-it/example_repository/blob/main/Projekt_2/Task_manager_MAIN_SQL.py
+  - program pre testovacie prostredie je v súbore pod názvom: Task_manager_TEST_SQL.py a jeho testovacie prípady sú pod názvom: test_task_manager.py
+       - dostupná URL pre Pytesty: https://github.com/Lucia-ship-it/example_repository/blob/main/Projekt_2/test_task_manager.py
+    
+   
