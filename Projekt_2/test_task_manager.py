@@ -103,17 +103,58 @@ def test_add_task_negative(conn):
 
     assert result is None, f"❌ocekavano None, ve skutecnosti {result}"
 
-# def test_add_task_duplicitne_id():
-#     cursor = conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO uzivatele (id, nazev, email) VALUES (1, 'duplicitni id', 'negativni test, uol nesmi byt zapsan, pretoze id mame ako default auto increment');"
-#     )
-#     result = cursor.fetchone()
-#     print (result)
+@pytest.mark.add
+def test_add_task_duplicity_negative(conn):
+    cursor = conn.cursor()
+# program umozni zadat mno urcene id, ale kedze mame yield, neostane v tabulke. preto to musim pridat v jednom kroku rovno druhy krat
+    cursor.execute(
+        "INSERT INTO Ukoly_test (id, nazev, popis) VALUES (%s, %s, %s);",
+        (2901, "vlozenie id", "negativni test 1")
+    )
+    conn.commit()
 
-#     assert result is False
+
+    with pytest.raises(pymysql.err.IntegrityError):
+        cursor.execute(
+            "INSERT INTO Ukoly_test (id, nazev, popis) VALUES (%s, %s, %s);",
+            (2901, "duplicitne id", "negativni test 2")
+        )
+        conn.commit()
+
+    if pytest.raises:
+        print(f"✅ nepoovolene duplicitne zadanie id")
+    cursor.close()
+
+@pytest.mark.add
+def test_insert_invalid_data_negative(conn):#zo skript
+    cursor=conn.cursor()
+
+    # Pokus o vložení příliš dlouhého textu
+    with pytest.raises(pymysql.err.DataError,  match="Data too long for column"):
+        cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES (%s, %s)", ('a' * 101, 'vlozenie retazca o dlzke nad povoleny vstup'))
+        conn.commit()
+
+        cursor.close()
 
 #------------- testy na AKTUALIZOVAT UKOL -------
+@pytest.mark.update
+def test_update_data_positive(conn): #zo skript
+    
+    cursor = conn.cursor()
+    # Vložení testovacího záznamu
+    cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES ('update ukolu', 'funkcia skusa spravnu aktualizaciu tabulky');")
+    conn.commit()
+
+    # Aktualizace dat
+    cursor.execute("UPDATE Ukoly_test SET stav = 'Hotovo' WHERE nazev = 'update ukolu';")
+    conn.commit()
+
+    # Ověření aktualizace
+    cursor.execute("SELECT * FROM Ukoly_test WHERE nazev = 'update ukolu';")
+    result = cursor.fetchone()
+    cursor.close()
+    print(result)
+    assert result[3] == "Hotovo", "Stav nebyl správně aktualizován."
 
 @pytest.mark.update
 def test_get_task_id_positive(conn):
@@ -212,8 +253,6 @@ def test_update_task_status_get_id_positive(conn):
         
     nove_id = cursor.lastrowid
 
-
-
     result = update_task_status (conn, nove_id, zadanie_stavu)
     print(result)
     assert result is True, f"❌ Očakávané True, zadali sme povoleny stav, hlasi {result}"
@@ -276,10 +315,29 @@ def test_delete_task_by_id_negative(conn):
     result = delete_task_by_id(conn, task_id=-1)
     assert result == False, f"❌  ocakavme False pri zapornom id a vyslo {result}"
 
+def test_delete_data_positive(conn): #zo skript
+    cursor=conn.cursor()
+
+    # Vložení testovacího záznamu
+    cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES ('vlozenie pre delete', 'touto uohou si overime, ci sa po zmazani uz nenachadza v zozname')")
+    conn.commit()
+
+    cursor.execute("SELECT * FROM Ukoly_test WHERE nazev = 'vlozenie pre delete'")
+    skuska = cursor.fetchone()
+    print(skuska)
+    # Smazání záznamu
+    cursor.execute("DELETE FROM Ukoly_test WHERE nazev = 'vlozenie pre delete'")
+    conn.commit()
+
+    # Ověření mazání
+    cursor.execute("SELECT * FROM Ukoly_test WHERE nazev = 'vlozenie pre delete'")
+    result = cursor.fetchone()
+    cursor.close()
+    assert result is None, "Záznam nebyl správně smazán."
 
 # ------------- test na ZOBRAZIT UKOLY ------- pomylila som sa, ale ked uz boli vyrobene, necham ich tu. aspon som si to precvicila
 
-def test_get_all_tasks_positive(conn): #tu v zatvorke nesmie byt conn, lebo to berie ako fixture
+def test_get_all_tasks_positive(conn):
     cursor=conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro seznam', 'vytvoreni ukol aby seznam nebyl nikdy prazdny');"
@@ -290,10 +348,16 @@ def test_get_all_tasks_positive(conn): #tu v zatvorke nesmie byt conn, lebo to b
     if tasks is not None:
         print("✅ Tabulka zobrazuje ulohy")
 
+    cursor.execute(
+        "SELECT * FROM Ukoly_test WHERE nazev='ukol pro seznam';")
+    skuska = cursor.fetchone()
+
     assert len(tasks) > 0  # očakávame, že sú tam nejaké tasky
     assert "id" in tasks[0]
     assert "nazev" in tasks[0]
     assert tasks is not None, f"❌ ocekavany zaznam v tabulke, v skutocnosti zoznam prazdny"
+
+    assert skuska[1] == "ukol pro seznam"
 
 
 def test_get_all_tasks_negative(conn):
