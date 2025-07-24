@@ -15,7 +15,7 @@ def connect_to_db():
     
     
 #-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
-def overenie_tabulky():
+def overenie_tabulky(conn):
     try:
         cursor = conn.cursor()
         cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
@@ -47,7 +47,7 @@ def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
     conn.commit()
     cursor.close()
 
-def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str) -> str: # -> oznacuje, ze funkccia vrati retazec. 
+def add_task_overenie_input(nazev_ukolu: str, popis_ukolu: str):
     nazev_ukolu = nazev_ukolu.strip()
     popis_ukolu = popis_ukolu.strip()
     if not nazev_ukolu or not popis_ukolu:
@@ -70,19 +70,10 @@ def add_task_input(conn):
 
 #-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
     
-def get_all_tasks_moznost_filtra(conn, moznost_filtru=None):
-    if moznost_filtru is None:
-        moznost_filtru = input("\nV případě, že si přejete zobrazit pouze nedokončené úkoly, napište 'filtr': \n").strip()
-    
-    if moznost_filtru == 'filtr':
-        data_filter(conn)
-        
-    else:
-        print("Zrušeno uživatelem.")
-        return
+     
         
 
-def get_all_tasks(conn, filtruj=False):
+def get_all_tasks(conn, filtruj=False)->bool:
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
@@ -98,8 +89,14 @@ def get_all_tasks(conn, filtruj=False):
         
 
         if filtruj == True:
-            get_all_tasks_moznost_filtra(conn)
- #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
+            print("\n🎯 Chcete zobrazit pouze nedokončené úkoly?")
+            moznost_filtru = input("\nZadejte 'filtr' pro zobrazení nedokončených úkolů, nebo stiskněte Enter pro návrat: \n").strip()
+            if moznost_filtru.lower() == 'filtr':
+                data_filter(conn)
+        
+            else:
+                print("↩️  Návrat bez filtrování.")
+            
         return tasks
 
     except pymysql.MySQLError as e:
@@ -155,7 +152,7 @@ def zmen_stav_ukolu_input(conn):
         print("✅ Úkol byl úspěšně aktualizován.")
         
 
-def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
+def get_task_id(conn,vyber_id):
     """
     Získa ID úlohy podľa zadaného ID.
     """
@@ -166,22 +163,21 @@ def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
             (vyber_id,)
         )
         vyber_id = cursor.fetchone()
-        return vyber_id["id"] if vyber_id else None #Ak neexistuje (status is None)
-            #raise ValueError("Zadejte spprávné id úkolu.")
+        return vyber_id["id"] if vyber_id else None 
     except pymysql.MySQLError as e:
         print(f"❌ Chyba při výběru id úkolu {e}")
     finally:
         cursor.close()
  
   
-def kontrola_id_status(conn, vyber_id) -> bool:
+def kontrola_id_status(conn, vyber_id):
     """
     Overí, či úloha so zadaným ID existuje.
     """
     id_exist = get_task_id(conn, vyber_id)
     if id_exist is None:
-        return False
-    return True
+        return None
+    return id_exist
     
 def update_task_status(conn, vyber_id, novy_stav) -> bool:
     povolene_stavy = ['Probíhá', 'Hotovo']
@@ -191,19 +187,17 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
     if not kontrola_id_status(conn, vyber_id):
         raise ValueError("Zadané ID neexistuje.")
     
+   
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE Ukoly_test SET stav = %s WHERE id = %s;", 
+            "UPDATE Ukoly_test SET stav = %s WHERE id = %s;",
             (novy_stav, vyber_id)
         )
         conn.commit()
-        return True
-    except pymysql.MySQLError as e:
-        print(f"❌ Chyba při aktualizaci úkolu: {e}")
-        return False
+        return cursor.rowcount > 0
     finally:
-        cursor.close()    
+        cursor.close()
 
 #---------------------7. FUNKCIA ZMAZANIE ULOHY -------------------
 def odstraneni_ukolu_input(conn):
@@ -277,7 +271,7 @@ def hlavni_menu(conn):
 if __name__ == "__main__":
     try:
         conn = connect_to_db()
-        overenie_tabulky()
+        overenie_tabulky(conn)
         hlavni_menu(conn)
     finally:  
         conn.close()

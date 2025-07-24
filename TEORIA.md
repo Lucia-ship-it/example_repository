@@ -105,3 +105,8 @@ pouzitie s dekoratorom nad funkciou
 [(ukol 1, popis1, Hotovo),
 (uko2, popis 2, Probiha)]
 )
+
+VYTKA
+Někde se vrací prázdný řetězec, jinde None, jinde False. Doporučujeme sjednotit vracenou hodnotu pro chybějící vstup.
+
+Toto je oprávnená výtka a týka sa najmä funkcií, ktoré pracujú s chybovými alebo "ničím" výsledkami. Nekonzistentnosť môže viesť k nejasnému spracovaniu alebo chybám pri použití funkcií.
