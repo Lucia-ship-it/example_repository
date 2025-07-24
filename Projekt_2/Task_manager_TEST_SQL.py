@@ -5,63 +5,32 @@ from db_config import DB_CONFIG, create_connection, create_table_if_not_exist
 
 def connect_to_db():
     try:
-        create_connection()
+        conn = create_connection()
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
-        
         return conn
     
     except MySQLError as e:
         raise ConnectionError(f"❌ Chyba při připojování: {e}")
     
-# def vytvor_pripojeni(): 
-#         conn = pymysql.connect(
-#                 host="mysql80.r4.websupport.sk",
-#                 port=3314,
-#                 user="EsPMMROq",
-#                 password="79_|rBg[1F=`}cj|I%kc",
-#                 database="Task_manager_SQL"            
-#             )
-      
+    
     
 #-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
-def initialize_db(host, port, user, password, database):
+def overenie_tabulky():
     try:
-        connection = pymysql.connect(
-            host=host,
-            port=port,
-            user=user,
-            password=password
-        )
-
-        cursor = connection.cursor()
+        cursor = conn.cursor()
         cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
         existuje = cursor.fetchone()
 
         if existuje:
-            print("ℹ️  Tabulka 'Ukoly_test' již existuje.")
+            print("✅ Tabulka 'Ukoly_test' již existuje a je připravená.")
         else:    
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS Ukoly_test (
-                    id INT PRIMARY KEY AUTO_INCREMENT,
-                    nazev VARCHAR(50) NOT NULL,
-                    popis VARCHAR(255) NOT NULL,
-                    stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
-                    datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
-                );
-            ''')
-            connection.commit()
+            create_table_if_not_exist(conn)
             print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
         
 
     except MySQLError as e:
        print(f"❌ Chyba při vytváření tabulky: {e}")
        raise 
-
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-
 
 
 
@@ -303,14 +272,10 @@ def hlavni_menu(conn):
     
 # --------SPUSTENIE
 if __name__ == "__main__": # Aby sa program spustil len vtedy, keď súbor spúšťaš priamo, ale nie pri importe (napr. z testov)
-    conn = vytvor_pripojeni()
-    if conn:
-        if create_table_if_not_exist(conn):
-                print("✅ Tabulka je připravená.\n")
-                hlavni_menu(conn)
-        else:
-            print("❌ Chyba při přípravě tabulky.")
-            
+    try:
+        conn = connect_to_db()
+        overenie_tabulky()
+        hlavni_menu(conn)
+    finally:  
         conn.close()
-    else:
-        print("❌ Připojení selhalo.")
+
