@@ -1,0 +1,32 @@
+# Virtuálne prostredie
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+
+# OS súbory
+.DS_Store
+
+# Konfigurácie editora
+.vscode/
+
+# .env súbory s citlivými údajmi
+.env
+
+# Logy a výstupné súbory
+*.log
+
+# Test coverage
+htmlcov/
+.coverage
+.cache/
+
+# MyPy / Pytest cache
+.mypy_cache/
+.pytest_cache/

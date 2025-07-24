@@ -282,3 +282,4 @@ if __name__ == "__main__": # Aby sa program spustil len vtedy, keď súbor spú�
         conn.close()
     else:
         print("❌ Připojení selhalo.")
+xq
