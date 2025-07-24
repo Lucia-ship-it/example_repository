@@ -1,7 +1,8 @@
 import pymysql
 from datetime import date
-from db_config import DB_CONFIG, create_connection, create_table_if_not_exist
+from Projekt_2.db_config import DB_CONFIG, create_connection, create_table_if_not_exist
 
+# spustenie: python -m Projekt_2.Task_manager_TEST_SQL
 def connect_to_db():
     try:
         conn = create_connection()
@@ -99,7 +100,7 @@ def get_all_tasks(conn, filtruj=False):
         if filtruj == True:
             get_all_tasks_moznost_filtra(conn)
  #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
-        return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
+        return tasks
 
     except pymysql.MySQLError as e:
         print(f"❌ Chyba při načítání úkolů: {e}")
@@ -234,6 +235,9 @@ def delete_task_by_id(conn, task_id) -> bool:
         cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
         conn.commit()
         return cursor.rowcount > 0  # vracia počet riadkov, ktoré boli ovplyvnené posledným SQL príkazom. True ak sa niečo zmazalo
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při mazání úkolu: {e}")
+        return False
     finally:
         cursor.close()
 
@@ -270,11 +274,10 @@ def hlavni_menu(conn):
 
     
 # --------SPUSTENIE
-if __name__ == "__main__": # Aby sa program spustil len vtedy, keď súbor spúšťaš priamo, ale nie pri importe (napr. z testov)
+if __name__ == "__main__":
     try:
         conn = connect_to_db()
         overenie_tabulky()
         hlavni_menu(conn)
     finally:  
         conn.close()
-
