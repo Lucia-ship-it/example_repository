@@ -1,17 +1,11 @@
 import pymysql
 from pymysql.err import MySQLError
 from datetime import date
-from db_config import DB_CONFIG
+from db_config import DB_CONFIG, create_connection, create_table_if_not_exist
 
 def connect_to_db():
     try:
-        conn = pymysql.connect(
-            host=DB_CONFIG["host"],
-            port=DB_CONFIG["port"],
-            user=DB_CONFIG["user"],
-            password=DB_CONFIG["password"],
-            database=DB_CONFIG["database"]
-        )
+        create_connection()
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
         
         return conn
