@@ -1,1 +1,0 @@
-#pytest testy pre logiku
