@@ -1,61 +1,36 @@
 import pymysql
 from datetime import date
+from db_config import DB_CONFIG, create_connection, create_table_if_not_exist
+
 
 #--------1. pripojenie k db------
-def vytvor_pripojeni(): 
+def connect_to_db():
     try:
-        conn = pymysql.connect(
-                host="mysql80.r4.websupport.sk",
-                port=3314,
-                user="EsPMMROq",
-                password="79_|rBg[1F=`}cj|I%kc",
-                database="Task_manager_SQL"            
-            )
+        conn = create_connection()
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
-        
         return conn
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při připojování: {err}")   
-        return None 
+    
+    except pymysql.MySQLError as e:
+        raise ConnectionError(f"❌ Chyba při připojování: {e}")
+    
     
 #-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
-def create_table_if_not_exist(conn) -> bool:
-    """
-    Vytvorí tabulku Ukoly, ak ešte neexistuje.
-    Vracia True, ak bola vytvorená alebo už existovala.
-    Vracia False, ak nastala chyba.
-    """
+def overenie_tabulky():
     try:
         cursor = conn.cursor()
-
-        # Overenie, či už tabuľka existuje
-        cursor.execute("SHOW TABLES LIKE 'Ukoly';")
+        cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
         existuje = cursor.fetchone()
 
         if existuje:
-            print("ℹ️  Tabulka 'Ukoly' již existuje.")
-            return True
+            print("✅ Tabulka 'Ukoly_test' již existuje a je připravená.")
+        else:    
+            create_table_if_not_exist(conn)
+            print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
+        
 
-        # Ak neexistuje, vytvor ju
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Ukoly (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                nazev VARCHAR(50) NOT NULL,
-                popis VARCHAR(255) NOT NULL,
-                stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
-                datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
-            );
-        ''')
-        conn.commit()
-        print("✅ Tabulka 'Ukoly' byla vytvořena.")
-        return True
-
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při vytváření tabulky: {err}")
-        return False
-
-    finally:
-        cursor.close()
+    except pymysql.MySQLError as e:
+       print(f"❌ Chyba při vytváření tabulky: {e}")
+       raise 
 
 #-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
@@ -124,8 +99,8 @@ def get_all_tasks(conn, filtruj=False):
  #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
         return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
 
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při načítání úkolů: {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při načítání úkolů: {e}")
     finally:
         cursor.close()
 
@@ -192,8 +167,8 @@ def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
         vyber_id = cursor.fetchone()
         return vyber_id["id"] if vyber_id else None #Ak neexistuje (status is None)
             #raise ValueError("Zadejte spprávné id úkolu.")
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při výběru id úkolu {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při výběru id úkolu {e}")
     finally:
         cursor.close()
  
@@ -223,8 +198,8 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
         )
         conn.commit()
         return True
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při aktualizaci úkolu: {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při aktualizaci úkolu: {e}")
         return False
     finally:
         cursor.close()    

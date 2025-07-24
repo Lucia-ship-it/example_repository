@@ -1,5 +1,4 @@
 import pymysql
-from pymysql.err import MySQLError
 from datetime import date
 from db_config import DB_CONFIG, create_connection, create_table_if_not_exist
 
@@ -9,7 +8,7 @@ def connect_to_db():
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
         return conn
     
-    except MySQLError as e:
+    except pymysql.MySQLError as e:
         raise ConnectionError(f"❌ Chyba při připojování: {e}")
     
     
@@ -28,7 +27,7 @@ def overenie_tabulky():
             print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
         
 
-    except MySQLError as e:
+    except pymysql.MySQLError as e:
        print(f"❌ Chyba při vytváření tabulky: {e}")
        raise 
 
@@ -102,8 +101,8 @@ def get_all_tasks(conn, filtruj=False):
  #musi byt v tele, inak sa ani nezobrazi a msim osetrit parametrom, aby sa mi nezobrazoval filter aj pri aktualizacii
         return tasks # vzdy vrati zoznam, bud s hodnotami alebo bez
 
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při načítání úkolů: {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při načítání úkolů: {e}")
     finally:
         cursor.close()
 
@@ -168,8 +167,8 @@ def get_task_id(conn,vyber_id):#pouzitie na aktualizaciu aj delete #k testu
         vyber_id = cursor.fetchone()
         return vyber_id["id"] if vyber_id else None #Ak neexistuje (status is None)
             #raise ValueError("Zadejte spprávné id úkolu.")
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při výběru id úkolu {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při výběru id úkolu {e}")
     finally:
         cursor.close()
  
@@ -199,8 +198,8 @@ def update_task_status(conn, vyber_id, novy_stav) -> bool:
         )
         conn.commit()
         return True
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při aktualizaci úkolu: {err}")
+    except pymysql.MySQLError as e:
+        print(f"❌ Chyba při aktualizaci úkolu: {e}")
         return False
     finally:
         cursor.close()    
