@@ -1,19 +1,22 @@
 import pymysql
 import pytest
+from db_config import DB_CONFIG
 from Projekt_2.Task_manager_TEST_SQL import add_task_overenie_input, add_task_into_sql, get_task_id, kontrola_id_status, update_task_status, delete_task_by_id, get_all_tasks
 
-
-
-@pytest.fixture
+@pytest.fixture(scope="session")
 def conn():
     connection = pymysql.connect(
-                    host="mysql80.r4.websupport.sk",
-                    port=3314,
-                    user="EsPMMROq",
-                    password="79_|rBg[1F=`}cj|I%kc",
-                    database="Task_manager_SQL"            
-                )
+        host=DB_CONFIG["host"],
+        port=DB_CONFIG["port"],
+        user=DB_CONFIG["user"],
+        password=DB_CONFIG["password"],
+        database=DB_CONFIG["database"]
+    )
+    yield connection
+    connection.close()
 
+@pytest.fixture
+def create_table(connection):
     cursor = connection.cursor()
     cursor.execute("""
             CREATE TABLE IF NOT EXISTS Ukoly_test (
@@ -25,12 +28,9 @@ def conn():
             );
     """)
     connection.commit()
-
-   
-    yield connection 
-    cursor.execute("DROP TABLE IF EXISTS Ukoly_test")
-    connection.commit()
-
+    yield  
+    cursor.execute("DROP TABLE Ukoly_test")
+    
     cursor.close()
     connection.close()
 

@@ -22,4 +22,3 @@ pripojenie: host="mysql80.r4.websupport.sk",
             database="Task_manager_SQL" 
 - pouzivam PYMYSQL
 
-Musím povedať, že tento projekt bola výzva. začala som písať program ešte pred pytestami, napísala som si ho tak, že sa nedal testovať. takmer celý som ho prepisovala a dalo mi zabrať vymyslieť to. radila som sa kde to šlo. keď som mala už lepší program, asi som nepochopila zadanie, mala som problem zase s testami… ALE týmito pokusmi a omylmi som sa snažila čo najviac toho spracovať a poskúšať.

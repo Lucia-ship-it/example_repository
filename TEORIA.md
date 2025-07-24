@@ -56,3 +56,52 @@ Po dokončení testu se často data zase vymažou (či databáze resetuje), aby 
 nakonci zmazat testovacie data
 
 cd /Users/luciakobzova/example_repository/Projekt_2
+
+///////////////////////////////////////////////
+
+.env = slúži na ukladanie citlivých alebo konfiguračných údajov mimo zdrojového kódu – napríklad:
+
+prihlasovacie údaje (heslá, API kľúče),
+
+databázové pripojenia,
+
+špecifické nastavenia pre beh aplikácie.
+
+Používa sa hlavne preto, aby tieto údaje:
+
+neboli napevno napísané v kóde, a
+
+neboli náhodne nahrané na GitHub.
+
+---------------
+
+main.py - hlavny subor, bezna prax
+v main je zalozeny dynamicky import
+# instalacia : pip3 install python-dotenv
+
+TO CO TESTUJEME JE PRAVDEPODOBNE ZLE< NEMOZEME TOMU VERIT> MUSIME SI  v teste vlastne pripojenie
+
+///// uprava projektu
+Nekonzistentní návratové hodnoty: Někde se vrací prázdný řetězec, jinde None, jinde False.
+
+✅ Čo upraviť:
+Vyber si jedno pravidlo:
+
+Pre "nič sa nenašlo" používaj vždy None
+
+Pre "neúspešnú operáciu" používaj False
+
+V komentároch k funkciám jasne napíš, čo funkcia vracia v každom prípade.
+
+aby sme nekopirovali kod / lebo moze vrniknut chyba / vytvorime si pytest parametrise - prepiseme funkciu, ktora sa opakuje
+
+pridat_ulohu(nazov, popis, stav)
+aj v selecte aby bolo %s
+
+to iste v assert - miesto realnych hodnot name, popis, stav
+pouzitie s dekoratorom nad funkciou
+@pytest.mark.parametrize(
+"nazev, popis, stav",
+[(ukol 1, popis1, Hotovo),
+(uko2, popis 2, Probiha)]
+)

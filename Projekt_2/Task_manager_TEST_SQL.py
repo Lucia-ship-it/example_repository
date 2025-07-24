@@ -1,61 +1,75 @@
 import pymysql
+from pymysql.err import MySQLError
 from datetime import date
+from db_config import DB_CONFIG
 
-#--------1. pripojenie k db------
-def vytvor_pripojeni(): 
+def connect_to_db():
     try:
         conn = pymysql.connect(
-                host="mysql80.r4.websupport.sk",
-                port=3314,
-                user="EsPMMROq",
-                password="79_|rBg[1F=`}cj|I%kc",
-                database="Task_manager_SQL"            
-            )
+            host=DB_CONFIG["host"],
+            port=DB_CONFIG["port"],
+            user=DB_CONFIG["user"],
+            password=DB_CONFIG["password"],
+            database=DB_CONFIG["database"]
+        )
         print("\n✅ Připojení k databázi bylo úspěšné. Databáze Task_manager_SQL je k dispozici.")
         
         return conn
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při připojování: {err}")   
-        return None 
+    
+    except MySQLError as e:
+        raise ConnectionError(f"❌ Chyba při připojování: {e}")
+    
+# def vytvor_pripojeni(): 
+#         conn = pymysql.connect(
+#                 host="mysql80.r4.websupport.sk",
+#                 port=3314,
+#                 user="EsPMMROq",
+#                 password="79_|rBg[1F=`}cj|I%kc",
+#                 database="Task_manager_SQL"            
+#             )
+      
     
 #-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
-def create_table_if_not_exist(conn) -> bool:
-    """
-    Vytvorí tabulku Ukoly_test, ak ešte neexistuje.
-    Vracia True, ak bola vytvorená alebo už existovala.
-    Vracia False, ak nastala chyba.
-    """
+def initialize_db(host, port, user, password, database):
     try:
-        cursor = conn.cursor()
+        connection = pymysql.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password
+        )
 
-        # Overenie, či už tabuľka existuje
+        cursor = connection.cursor()
         cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
         existuje = cursor.fetchone()
 
         if existuje:
             print("ℹ️  Tabulka 'Ukoly_test' již existuje.")
-            return True
+        else:    
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS Ukoly_test (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    nazev VARCHAR(50) NOT NULL,
+                    popis VARCHAR(255) NOT NULL,
+                    stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
+                    datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
+                );
+            ''')
+            connection.commit()
+            print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
+        
 
-        # Ak neexistuje, vytvor ju
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Ukoly_test (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                nazev VARCHAR(50) NOT NULL,
-                popis VARCHAR(255) NOT NULL,
-                stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
-                datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
-            );
-        ''')
-        conn.commit()
-        print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
-        return True
-
-    except pymysql.MySQLError as err:
-        print(f"❌ Chyba při vytváření tabulky: {err}")
-        return False
+    except MySQLError as e:
+       print(f"❌ Chyba při vytváření tabulky: {e}")
+       raise 
 
     finally:
-        cursor.close()
+        if connection:
+            cursor.close()
+            connection.close()
+
+
+
 
 #-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 def add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
