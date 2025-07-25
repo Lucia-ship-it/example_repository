@@ -154,3 +154,45 @@ UI oddelene:
 Máš funkcie ako add_task_into_sql, update_task_status, delete_task_by_id — tie by mali byť „čisté“ v tom, že iba vykonávajú operáciu nad DB a v prípade chyby vyhodia výnimku (alebo vrátia úspech/ neúspech). Nemali by riešiť nič s UI (napr. printovanie, input, pýtanie sa používateľa, opakovanie vstupov).
 
 Naopak, UI funkcie (add_task_input, zmen_stav_ukolu_input, odstraneni_ukolu_input) sú zodpovedné za komunikáciu s používateľom — pýtajú sa na vstupy, vypisujú správy, opakujú vstupy, riešia potvrdenia, a na základe toho volajú „čisté“ DB funkcie.
+
+duplicitne volania: 
+Duplicitné volania get_task_id()
+V niektorých funkciách (napr. update_task_status aj delete_task_by_id) sa overuje ID viackrát – najskôr v UI, potom ešte v SQL funkcii.
+
+Odporúčanie: Over ID len v UI vrstve a nech SQL funkcie predpokladajú, že ID už existuje – tým znížiš duplikáciu a zjednodušíš logiku.
+
+co robi continue vo funkcii:
+def odstraneni_ukolu_input(conn):
+    try:
+        tasks = get_all_tasks_sql(conn)
+        if not tasks:
+            print("Není co mazať.\n")
+            return
+        show_tasks(tasks)
+        
+        while True:
+            try:
+                vyber_id = int(input("\nZadejte ID úkolu, který chcete smazat: ")) #vstup INT, tak hlaska na Value error.
+                if not check_task_id(conn, vyber_id):
+                    print("❌ Zadané ID neexistuje.")
+                    continue
+          
+                potvrdenie = input(f"Opravdu chcete smazat úkol s ID {vyber_id}?❗Pro potvrzení akce napište 'ano'): ").strip().lower()
+                if potvrdenie != 'ano':
+                    print("↩️  Zrušeno uživatelem.")
+                    return
+
+                if delete_task_by_id(conn, vyber_id):
+                    print("✅ Úkol byl odstraněn.")
+                else:
+                    print("❌ Mazání se nezdařilo.")
+                break
+            except ValueError:
+                print("❗ Prosím, zadejte platné číslo.")
+    except ValueError as e:
+        print(f"❌ {e}")
+
+- Skontroluje, či ID existuje v databáze.
+- ❌ Ak neexistuje, vypíše hlášku.
+- continue zabezpečí, že sa cyklus vráti späť na začiatok a používateľ môže zadať nové ID – namiesto toho, aby sa pokračovalo ďalej.
+- Zabraňuje zbytočnému dotazu na potvrdenie alebo pokusu o vymazanie neexistujúceho úlohy.

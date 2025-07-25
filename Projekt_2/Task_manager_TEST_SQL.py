@@ -113,7 +113,6 @@ def show_tasks(tasks):
         print(task)
 
 
-#?asi ok
 def show_all_tasks_ui(conn):
     try:
         tasks = get_all_tasks_sql(conn)
@@ -136,21 +135,16 @@ def show_all_tasks_ui(conn):
 
 #-------------------6. FUNCIA AKTUALIZACIA UKOLU----------------
     
-def get_task_id(conn,vyber_id):
+def check_task_id(conn,vyber_id)->bool:
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
             "SELECT id FROM Ukoly_test WHERE id=%s;",
             (vyber_id,)
         )
-        vysledok = cursor.fetchone()
-        
-        if vysledok:
-            return vysledok
-        else:
-            return None
+        return cursor.fetchone() is not None
     except pymysql.MySQLError as e:
-        raise RuntimeError(f"❌ Chyba při výběru id úkolu {e}")
+        raise RuntimeError(f"❌ Chyba při ověřování ID {e}")
     finally:
         cursor.close()
 
@@ -160,9 +154,6 @@ def update_task_status(conn, vyber_id, novy_stav):
 
     if novy_stav not in povolene_stavy:
         raise ValueError("Neplatný stav.")
-    
-    if not get_task_id(conn, vyber_id):
-        raise ValueError("Zadané ID neexistuje.")
     
     try:
         cursor = conn.cursor()
@@ -191,7 +182,7 @@ def update_task_status_input(conn):
         while True:
             try:
                 vyber_id = int(input("\nZadejte ID úkolu, jehož stav chcete změnit: "))
-                if not get_task_id(conn, vyber_id):
+                if not check_task_id(conn, vyber_id):
                     print("❌ Zadané ID neexistuje. Zkuste znovu.")
                     continue
                 break
@@ -215,9 +206,7 @@ def update_task_status_input(conn):
 #---------------------7. FUNKCIA ZMAZANIE ULOHY -------------------
   
 def delete_task_by_id(conn, task_id):
-    if not get_task_id(conn, task_id):
-        raise ValueError("ID úkolu neexistuje.")
-    
+  
     try:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
@@ -241,7 +230,7 @@ def odstraneni_ukolu_input(conn):
         while True:
             try:
                 vyber_id = int(input("\nZadejte ID úkolu, který chcete smazat: ")) #vstup INT, tak hlaska na Value error.
-                if not get_task_id(conn, vyber_id):
+                if not check_task_id(conn, vyber_id):
                     print("❌ Zadané ID neexistuje.")
                     continue
           
