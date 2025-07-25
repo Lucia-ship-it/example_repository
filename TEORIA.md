@@ -149,3 +149,8 @@ Tento prístup sa často nazýva - early exit- alebo -guard clause- a patrí med
         for da in data:
             print(da)
         return data
+
+UI oddelene:
+Máš funkcie ako add_task_into_sql, update_task_status, delete_task_by_id — tie by mali byť „čisté“ v tom, že iba vykonávajú operáciu nad DB a v prípade chyby vyhodia výnimku (alebo vrátia úspech/ neúspech). Nemali by riešiť nič s UI (napr. printovanie, input, pýtanie sa používateľa, opakovanie vstupov).
+
+Naopak, UI funkcie (add_task_input, zmen_stav_ukolu_input, odstraneni_ukolu_input) sú zodpovedné za komunikáciu s používateľom — pýtajú sa na vstupy, vypisujú správy, opakujú vstupy, riešia potvrdenia, a na základe toho volajú „čisté“ DB funkcie.
