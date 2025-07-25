@@ -110,3 +110,42 @@ VYTKA
 Někde se vrací prázdný řetězec, jinde None, jinde False. Doporučujeme sjednotit vracenou hodnotu pro chybějící vstup.
 
 Toto je oprávnená výtka a týka sa najmä funkcií, ktoré pracujú s chybovými alebo "ničím" výsledkami. Nekonzistentnosť môže viesť k nejasnému spracovaniu alebo chybám pri použití funkcií.
+
+✅ Používať výnimky (raise) na skutočné chyby
+-Prázdny vstup
+-Neexistujúce ID
+-Chyby v DB
+Odporúčanie:
+-Výnimka je tu dobrá na validáciu vstupu, overenie pripojenie, vytvorenia tabulky
+-Chybu chceš hneď vidieť, nemá zmysel ticho zlyhať.
+
+
+
+✅ Používať návratové hodnoty (None/False) na neutrálne stavy
+-Zoznam je prázdny
+-Užívateľ zrušil akciu
+-Nič sa nezmenilo
+
+🧠 Rozdiel: except s raise vs. bez raise
+Prístup	Význam	Kedy použiť
+except ValueError as e: print(...) (bez raise)	Výnimku zachytíš a spracuješ priamo v mieste – už ju ďalej nešíriš.	Ak chceš používateľovi hneď ukázať, čo sa pokazilo, a pokračovať
+except ValueError as e: raise	Výnimku zachytíš, ale ju znova vyhodíš na vyššiu úroveň.	Ak chceš, aby vyššia vrstva aplikácie vedela, že došlo k chybe a rozhodla, čo ďalej
+
+typy RAISE
+ConnectionError 	Problémy s pripojením k DB
+ValueError	        Zlé/neplatné ID alebo parametre
+LookupError	        Neúspešné vyhľadanie v dátach
+RuntimeError        Záložná možnosť – keď nič iné nepasuje
+
+
+najskor osetrim negativne spravanie a potom vystup toho co chcem vidiet
+Tento prístup sa často nazýva - early exit- alebo -guard clause- a patrí medzi dobré praktiky v programovaní. Znamená to, že najskôr ošetruješ výnimočné alebo negatívne prípady, aby si mohol potom s istotou riešiť ten "normálny" alebo "správny" tok kódu.
+
+        if not data:  # ak je prázdny zoznam alebo None
+            print("📭 Nemáte nedokončené úkoly.")
+            return None
+        
+        print("\n📋 Seznam nedokončených úkolů:")
+        for da in data:
+            print(da)
+        return data
