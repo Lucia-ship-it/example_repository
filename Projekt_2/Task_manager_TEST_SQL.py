@@ -28,7 +28,7 @@ def table_check(conn):
             print("✅ Tabulka 'Ukoly_test' byla vytvořena.")
         
     except pymysql.MySQLError as e:
-        raise RuntimeError(f"❌ Chyba pri vytváraní tabuľky: {e}")
+        raise RuntimeError(f"❌ Chyba při vytváření tabulky: {e}")
     
 def create_table_if_not_exist(conn):
     cursor = conn.cursor()
@@ -82,7 +82,7 @@ def add_task_input(conn):
                     break  
             except Exception as e:
                 print(f"❌ Chyba při přidávání úkolu: {e}")
-                print(f"❌ {e}")
+              
 
 #-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
 
@@ -94,13 +94,9 @@ def get_all_tasks_from_db(conn):
         return tasks
     except pymysql.MySQLError as e:
         raise ConnectionError(f"Chyba při načítání úkolů: {e}")
-    
     finally:
         cursor.close() 
         
-
-
-
 
 def get_nedokoncene_from_db(conn):
     try:
@@ -112,14 +108,11 @@ def get_nedokoncene_from_db(conn):
         return tasks
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba při načítání nedokončených úkolů: {e}")
-    
     finally:
         cursor.close()
     
 
 #---UI zobraz ukoly
-
-
 
 def show_all_tasks_ui(conn, tasks_all):
     try: 
@@ -240,7 +233,6 @@ def delete_task_by_id(conn, task_id):
 
 def odstraneni_ukolu_input(conn, tasks_all):
     try:
-
         if not tasks_all:
             print("Není co mazať.\n")
             return
@@ -290,15 +282,18 @@ def hlavni_menu(conn):
         if vyber_cisla == "1":
             print("\n 🔹 Přidání nového úkolu")
             add_task_input(conn)
+            tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "2":
             print("\n")
             show_all_tasks_ui(conn, tasks_all)
         elif vyber_cisla == "3":
             print("\nVolba Aktualizovat stav úkolu:")
             update_task_status_input(conn, tasks_all)
+            tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "4":
             print("\nVolba Odstranění úkolu:")
             odstraneni_ukolu_input(conn, tasks_all)
+            tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "5":
             print("\nKonec programu, naschledanou.👋\n")
             exit()
@@ -307,12 +302,17 @@ def hlavni_menu(conn):
 
     
 # --------SPUSTENIE
-if __name__ == "__main__":
+def run():
     try:
         conn = connect_to_db()
-        table_check(conn)
-        hlavni_menu(conn)
-    except Exception as e:
-        print(f"❌ Došlo k chybě: {e}")
-    finally:  
-        conn.close()
+    except ValueError as e:
+        print(f"Nelze navázat spojení s databází: {e}")
+        return
+    
+    table_check(conn)
+    hlavni_menu(conn)
+
+    conn.close()
+
+if __name__ == "__main__":
+    run()

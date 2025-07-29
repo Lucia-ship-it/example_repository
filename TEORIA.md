@@ -196,3 +196,7 @@ def odstraneni_ukolu_input(conn):
 - ❌ Ak neexistuje, vypíše hlášku.
 - continue zabezpečí, že sa cyklus vráti späť na začiatok a používateľ môže zadať nové ID – namiesto toho, aby sa pokračovalo ďalej.
 - Zabraňuje zbytočnému dotazu na potvrdenie alebo pokusu o vymazanie neexistujúceho úlohy.
+
+if __name__ == "__main__": zabezpečuje, že sa daný blok kódu vykoná len vtedy, keď sa súbor spustí priamo, nie keď sa importuje.
+
+Je to najlepší spôsob, ako oddeliť "spustenie aplikácie" od "definovania funkcií a logiky".
