@@ -1,8 +1,8 @@
 import pymysql
 from datetime import date
-from Projekt_2.db_config import DB_CONFIG, create_connection
+from Projekt_2.Test.db_config import DB_CONFIG, create_connection
 
-# spustenie: python -m Projekt_2.Task_manager_TEST_SQL
+# spustenie: python -m Projekt_2.Test.Task_manager_TEST_SQL
 
 def connect_to_db():
     try:
