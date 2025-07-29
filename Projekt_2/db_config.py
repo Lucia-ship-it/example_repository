@@ -21,16 +21,3 @@ def create_connection():
         database=DB_CONFIG["database"]
     )
 
-def create_table_if_not_exist(conn):
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS Ukoly_test (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            nazev VARCHAR(50) NOT NULL,
-            popis VARCHAR(255) NOT NULL,
-            stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
-            datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
-        );
-    """)
-    conn.commit()
-    cursor.close()

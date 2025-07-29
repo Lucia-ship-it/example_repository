@@ -1,6 +1,6 @@
 import pymysql
 from datetime import date
-from Projekt_2.db_config import DB_CONFIG, create_connection, create_table_if_not_exist
+from Projekt_2.db_config import DB_CONFIG, create_connection
 
 # spustenie: python -m Projekt_2.Task_manager_TEST_SQL
 
@@ -15,7 +15,7 @@ def connect_to_db():
     
 #-----------------2. OVERENIE/VYTVORENIE TABULKY---------------   
 
-def overenie_tabulky(conn):
+def table_check(conn):
     try:
         cursor = conn.cursor()
         cursor.execute("SHOW TABLES LIKE 'Ukoly_test';")
@@ -29,10 +29,24 @@ def overenie_tabulky(conn):
         
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba pri vytváraní tabuľky: {e}")
+    
+def create_table_if_not_exist(conn):
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Ukoly_test (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            nazev VARCHAR(50) NOT NULL,
+            popis VARCHAR(255) NOT NULL,
+            stav ENUM('Nezahájeno', 'Probíhá', 'Hotovo') NOT NULL DEFAULT 'Nezahájeno',
+            datum_vytvoreni DATE DEFAULT (CURRENT_DATE)
+        );
+    """)
+    conn.commit()
+    cursor.close()
 
 #-------------------4. FUNKCIA: PRIDAJ UKOL---------------
 
-def add_task_into_sql(conn, nazev_ukolu, popis_ukolu):
+def add_task_into_db(conn, nazev_ukolu, popis_ukolu):
     if not nazev_ukolu.strip() or not popis_ukolu.strip():
         raise ValueError("Název a popis úkolu jsou povinné.")
     
@@ -60,25 +74,25 @@ def add_task_input(conn):
 
         if not nazev_ukolu or not popis_ukolu:
             print("\n❌ Název a popis musí být vyplněny.\nZkuste to znovu.\n")
-            continue 
-        try:
-            if add_task_into_sql(conn,nazev_ukolu, popis_ukolu):
-                print(f"\n✅ Úkol přidán: {nazev_ukolu}")
-                break
-        except Exception as e:
-            print(f"❌ {e}")
-            break
-    
+
+        else:
+            try:
+                if add_task_into_db(conn, nazev_ukolu, popis_ukolu):
+                    print(f"\n✅ Úkol: {nazev_ukolu} byl přidán.")
+                    break  
+            except Exception as e:
+                print(f"❌ Chyba při přidávání úkolu: {e}")
+                print(f"❌ {e}")
 
 #-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
 
 
-def get_all_tasks_sql(conn):
+def get_all_tasks_from_db(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
-        tasks = cursor.fetchall()
-        return tasks
+        tasks_all = cursor.fetchall()
+        return tasks_all
     except pymysql.MySQLError as e:
         raise ConnectionError(f"Chyba při načítání úkolů: {e}")
     
@@ -86,7 +100,7 @@ def get_all_tasks_sql(conn):
         cursor.close() 
         
 
-def get_nedokoncene_sql(conn):
+def get_nedokoncene_from_db(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
@@ -103,34 +117,34 @@ def get_nedokoncene_sql(conn):
 
 #---UI zobraz ukoly
 
-def show_tasks(tasks):
-    if not tasks:
-        print("📭 Seznam úkolů je prázdný.")
-        return
-    
-    print("\n📋 Seznam všech úkolů:")
-    for task in tasks:
-        print(task)
 
 
 def show_all_tasks_ui(conn):
-    try:
-        tasks = get_all_tasks_sql(conn)
-        show_tasks(tasks)
+    try: 
+        tasks = get_all_tasks_from_db(conn)
+        if not tasks:
+            print("📭 Seznam úkolů je prázdný.")
+            return
+        
+        print("\n📋 Seznam všech úkolů:")
+        for task in tasks:
+            print(task)
 
-        if tasks:
+        if True:
             print("\n🎯 Chcete zobrazit pouze nedokončené úkoly?")
             moznost_filtru = input("\t➤ Zadejte 'filtr' pro zobrazení nedokončených úkolů, nebo stiskněte Enter pro návrat: \n").strip()
             if moznost_filtru.lower() == 'filtr':
-                data_nedokoncene = get_nedokoncene_sql(conn)
+                data_nedokoncene = get_nedokoncene_from_db(conn)
                 if data_nedokoncene:
                     print("\n📌 Seznam nedokončených úkolů:")
                     for data in data_nedokoncene:
                         print(data)
             else:
                 print("↩️  Návrat bez filtrování.")
+
     except Exception as e:
-        print(f"❌ {e}")
+        print(f"❌ Došlo k chybě: {e}")
+
 
 
 #-------------------6. FUNCIA AKTUALIZACIA UKOLU----------------
@@ -149,7 +163,7 @@ def check_task_id(conn,vyber_id)->bool:
         cursor.close()
 
 
-def update_task_status(conn, vyber_id, novy_stav):
+def update_task_status_db(conn, vyber_id, novy_stav):
     povolene_stavy = ['Probíhá', 'Hotovo']
 
     if novy_stav not in povolene_stavy:
@@ -173,11 +187,15 @@ def update_task_status(conn, vyber_id, novy_stav):
 
 def update_task_status_input(conn):
     try:
-        tasks = get_all_tasks_sql(conn)
+        tasks = get_all_tasks_from_db(conn)
         if not tasks: #if not tasks funguje pre viaceré typy:None,[],'', 0, False
             print("Není co aktualizovat.\n")
             return
-        show_tasks(tasks)
+        
+        print("\n📋 Seznam všech úkolů:")
+        for task in tasks:
+            print(task)
+        
 
         while True:
             try:
@@ -193,7 +211,7 @@ def update_task_status_input(conn):
         while True:
             novy_stav = input("Zadejte nový stav úkolu 'Probíhá' nebo 'Hotovo': ").strip()
             try:
-                if update_task_status(conn, vyber_id, novy_stav):
+                if update_task_status_db(conn, vyber_id, novy_stav):
                     print("✅ Úkol byl úspěšně aktualizován.")
                     break
                 else:
@@ -221,11 +239,15 @@ def delete_task_by_id(conn, task_id):
 
 def odstraneni_ukolu_input(conn):
     try:
-        tasks = get_all_tasks_sql(conn)
+        tasks = get_all_tasks_from_db(conn)
         if not tasks:
             print("Není co mazať.\n")
             return
-        show_tasks(tasks)
+      
+        print("\n📋 Seznam všech úkolů:")
+        for task in tasks:
+            print(task)
+    
         
         while True:
             try:
@@ -286,7 +308,7 @@ def hlavni_menu(conn):
 if __name__ == "__main__":
     try:
         conn = connect_to_db()
-        overenie_tabulky(conn)
+        table_check(conn)
         hlavni_menu(conn)
     except Exception as e:
         print(f"❌ Došlo k chybě: {e}")
