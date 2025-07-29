@@ -1,6 +1,6 @@
 import pymysql
 import pytest
-from Projekt_2.Test.db_config import DB_CONFIG, create_connection, create_table_if_not_exist
+from Projekt_2.db_config import DB_CONFIG, create_connection, create_table_if_not_exist
 from Projekt_2.Test.Task_manager_TEST_SQL import add_task_overenie_input, add_task_into_sql, get_task_id, kontrola_id_status, update_task_status, delete_task_by_id, get_all_tasks
 
 @pytest.fixture(scope="session")

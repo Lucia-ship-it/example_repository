@@ -296,7 +296,7 @@ def hlavni_menu(conn):
             tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "5":
             print("\nKonec programu, naschledanou.👋\n")
-            exit()
+            break
         else:
             print("\nZadejte správnou volbu menu.")
 
@@ -305,7 +305,7 @@ def hlavni_menu(conn):
 def run():
     try:
         conn = connect_to_db()
-    except ValueError as e:
+    except ConnectionError as e:
         print(f"Nelze navázat spojení s databází: {e}")
         return
     
