@@ -1,3 +1,5 @@
+# spustenie: example_repository % python -m Projekt_2.Main.Task_manager_SQL
+
 ----------------✅ Modulárne programovanie + testovateľnosť-------------
 instalacia venv a pip
 instalacia pytest pip3 install -U pytest
