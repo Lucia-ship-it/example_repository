@@ -86,19 +86,21 @@ def add_task_input(conn):
 
 #-------------------5. FUNKCIA ZOBRAZIT UKOLy-----------------
 
-
 def get_all_tasks_from_db(conn):
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT id, nazev, popis, stav FROM Ukoly_test;")
-        tasks_all = cursor.fetchall()
-        return tasks_all
+        tasks = cursor.fetchall()
+        return tasks
     except pymysql.MySQLError as e:
         raise ConnectionError(f"Chyba při načítání úkolů: {e}")
     
     finally:
         cursor.close() 
         
+
+
+
 
 def get_nedokoncene_from_db(conn):
     try:
@@ -119,15 +121,14 @@ def get_nedokoncene_from_db(conn):
 
 
 
-def show_all_tasks_ui(conn):
+def show_all_tasks_ui(conn, tasks_all):
     try: 
-        tasks = get_all_tasks_from_db(conn)
-        if not tasks:
+        if not tasks_all:
             print("📭 Seznam úkolů je prázdný.")
             return
         
         print("\n📋 Seznam všech úkolů:")
-        for task in tasks:
+        for task in tasks_all:
             print(task)
 
         if True:
@@ -185,15 +186,15 @@ def update_task_status_db(conn, vyber_id, novy_stav):
 
 #----UI Update
 
-def update_task_status_input(conn):
+def update_task_status_input(conn, tasks_all):
     try:
-        tasks = get_all_tasks_from_db(conn)
-        if not tasks: #if not tasks funguje pre viaceré typy:None,[],'', 0, False
+
+        if not tasks_all:
             print("Není co aktualizovat.\n")
             return
         
         print("\n📋 Seznam všech úkolů:")
-        for task in tasks:
+        for task in tasks_all:
             print(task)
         
 
@@ -237,15 +238,15 @@ def delete_task_by_id(conn, task_id):
 
 #-----UI delete
 
-def odstraneni_ukolu_input(conn):
+def odstraneni_ukolu_input(conn, tasks_all):
     try:
-        tasks = get_all_tasks_from_db(conn)
-        if not tasks:
+
+        if not tasks_all:
             print("Není co mazať.\n")
             return
       
         print("\n📋 Seznam všech úkolů:")
-        for task in tasks:
+        for task in tasks_all:
             print(task)
     
         
@@ -274,7 +275,8 @@ def odstraneni_ukolu_input(conn):
 
 #=======FUNKCIA HLAVNEHO MENU========
 def hlavni_menu(conn):
-   
+    tasks_all = get_all_tasks_from_db(conn)
+
     while True:
         print("\nSprávce úkolů - Hlavní menu")
         print("1. Přidat úkol")
@@ -290,13 +292,13 @@ def hlavni_menu(conn):
             add_task_input(conn)
         elif vyber_cisla == "2":
             print("\n")
-            show_all_tasks_ui(conn)
+            show_all_tasks_ui(conn, tasks_all)
         elif vyber_cisla == "3":
             print("\nVolba Aktualizovat stav úkolu:")
-            update_task_status_input(conn)
+            update_task_status_input(conn, tasks_all)
         elif vyber_cisla == "4":
             print("\nVolba Odstranění úkolu:")
-            odstraneni_ukolu_input(conn)
+            odstraneni_ukolu_input(conn, tasks_all)
         elif vyber_cisla == "5":
             print("\nKonec programu, naschledanou.👋\n")
             exit()
