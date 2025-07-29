@@ -231,7 +231,7 @@ def delete_task_by_id(conn, task_id):
 
 #-----UI delete
 
-def odstraneni_ukolu_input(conn, tasks_all):
+def delete_task_input(conn, tasks_all):
     try:
         if not tasks_all:
             print("Není co mazať.\n")
@@ -292,7 +292,7 @@ def hlavni_menu(conn):
             tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "4":
             print("\nVolba Odstranění úkolu:")
-            odstraneni_ukolu_input(conn, tasks_all)
+            delete_task_input(conn, tasks_all)
             tasks_all = get_all_tasks_from_db(conn)
         elif vyber_cisla == "5":
             print("\nKonec programu, naschledanou.👋\n")

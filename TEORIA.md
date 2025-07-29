@@ -202,3 +202,23 @@ def odstraneni_ukolu_input(conn):
 if __name__ == "__main__": zabezpečuje, že sa daný blok kódu vykoná len vtedy, keď sa súbor spustí priamo, nie keď sa importuje.
 
 Je to najlepší spôsob, ako oddeliť "spustenie aplikácie" od "definovania funkcií a logiky".
+
+aj toto je v poriadku test 
+# @pytest.mark.add
+# def test_add_task_positive(conn):
+#     nazev_ukolu = "ukol pro input"
+#     popis_ukolu = "overenie funkcnosti string vstupu"
+#     add_task_into_db(conn,nazev_ukolu, popis_ukolu)
+#     # skontrolujem, ze sa uloha ulozila
+#     cursor = conn.cursor()
+#     cursor.execute(
+#         "SELECT nazev FROM Ukoly_test WHERE nazev =%s",
+#         (nazev_ukolu,)
+#     )
+#     new_task = cursor.fetchone()
+#     if new_task:
+#         print("✅ Spravne ulozenie novej ulohy pri zadanych vstupoch")
+
+#     assert new_task[0] == nazev_ukolu, f"❌ Necakana chyba pri spravnom zadani vstupov"
+#     assert new_task[0] == "ukol pro input"
+#     #0 lebo V  dotaze je explicitne vybraty len jeden stĺpec: nazev.
