@@ -164,13 +164,24 @@ def update_task_status_db(conn, vyber_id, novy_stav):
         raise ValueError("Neplatný stav.")
     
     try:
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
             "UPDATE Ukoly_test SET stav = %s WHERE id = %s;",
             (novy_stav, vyber_id)
         )
         conn.commit()
-        return cursor.rowcount > 0
+
+        if cursor.rowcount == 0:
+            return None  # nič sa nezmenilo
+        
+        # inak vrat update ulohu
+        cursor.execute(
+            "SELECT id, nazev, popis, stav FROM Ukoly_test WHERE id = %s;",
+            (vyber_id,)
+        )
+        updated_task = cursor.fetchone()
+        return updated_task
+     
     except pymysql.MySQLError as e:
         raise ConnectionError(f"Chyba při aktualizaci úkolu: {e}")
     finally:
