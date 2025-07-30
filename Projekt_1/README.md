@@ -9,4 +9,5 @@ about: Základný program umožňuje spravovať úlohy prostredníctvom hlavnéh
 Technológia: Python
 
 dostupná URL: https://github.com/Lucia-ship-it/example_repository/blob/main/Projekt_1/Task_manager.py
+
 test cases sú v Google sheets: https://docs.google.com/spreadsheets/d/11o8gfTMI-WTXRoNLBxS6V8xWOD0Aeu4zNwxTkpo3vlI/edit?usp=sharing
