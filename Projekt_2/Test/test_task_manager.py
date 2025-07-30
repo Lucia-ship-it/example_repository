@@ -1,7 +1,7 @@
 import pymysql
 import pytest
 from Projekt_2.db_config import DB_CONFIG, create_connection
-from Projekt_2.Test.Task_manager_TEST_SQL import create_table_if_not_exist, add_task_into_db, update_task_status_db, delete_task_input
+from Projekt_2.Test.Task_manager_TEST_SQL import create_table_if_not_exist, add_task_into_db, update_task_status_db, delete_task_input, get_all_tasks_from_db
 
 @pytest.fixture(scope="session")
 def conn():
@@ -12,7 +12,6 @@ def conn():
 @pytest.fixture(scope="function")
 def set_up_test(conn):
 #"""Vytvorí testovaciu tabuľku pred každým testom a zmaže ju po teste."""
-    # Setup – vytvorenie tabuľky
     create_table_if_not_exist(conn)
     yield conn  # poskytne conn do testu   
 
@@ -28,11 +27,12 @@ def set_up_test(conn):
 
 @pytest.mark.parametrize("nazev_ukolu, popis_ukolu", [
     ("Test 1", "Ukol pro input"),
-    ("Dlhy nazov *3", "dlhsi popis *10"),
+    ("Dlhy nazov *2", "dlhsi popis *3"),
     ("a", "B"),
     (" medzery.    ", "   kvoli strip     ")
 ])
-def test_add_task_positive_par(conn, nazev_ukolu, popis_ukolu):
+@pytest.mark.add
+def test_add_task_unit_param_positive(conn, nazev_ukolu, popis_ukolu):
     vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
     if vysledok:
         print("podla ocakavani ulozena uloha")
@@ -44,13 +44,14 @@ def test_add_task_positive_par(conn, nazev_ukolu, popis_ukolu):
         "SELECT nazev, popis FROM Ukoly_test WHERE nazev = %s AND popis = %s",
         (nazev_ukolu.strip(),popis_ukolu.strip())
     )
-    new_task = cursor.fetchone()
+    new_task = cursor.fetchall()
+    cursor.close()
     if new_task:
         print("✅ Spravne ulozenie novej ulohy pri zadanych vstupoch")
     
     assert new_task is not None, f"❌ Úloha s názvom '{nazev_ukolu}' sa nenašla v DB."
-    assert new_task["nazev"] == nazev_ukolu.strip(), f"❌ Necakana chyba pri spravnom zadani vstupov"
-
+    assert any(task["nazev"] == nazev_ukolu.strip() and task["popis"] == popis_ukolu.strip()
+        for task in new_task), f"❌ Úloha '{nazev_ukolu}' sa nenašla medzi výsledkami."
 
 
 @pytest.mark.parametrize("nazev_ukolu, popis_ukolu", [
@@ -61,99 +62,57 @@ def test_add_task_positive_par(conn, nazev_ukolu, popis_ukolu):
     ("", ""),                      # oba prázdne
     ("   ", "   "),                # oba whitespace
 ])
-def test_add_task_negative(conn, nazev_ukolu, popis_ukolu):
+@pytest.mark.add
+def test_add_task_unit_param_negative(conn, nazev_ukolu, popis_ukolu):
     with pytest.raises(ValueError, match="Název a popis úkolu jsou povinné"):
         add_task_into_db(conn, nazev_ukolu, popis_ukolu)
+#kontrola
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(
+        "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
+        (nazev_ukolu,)
+    ) 
+    result = cursor.fetchone()
+    if result is None:
+        print("✅ Ocavany vysledok je neulozenie ulohy, pretoze vyplnenie pola pre nazov a popis su povinne")
+    cursor.close()
+
+    assert result is None, f"❌ ocekavano None, ve skutecnosti {result}"
 
 
 
 
+@pytest.mark.add
+def test_add_task_unit_positive(conn):
+    nazev_ukolu="xyz"
+    popis_ukolu="overenie pridania ulohy"
 
+    vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
+    assert vysledok == True
 
+@pytest.mark.add
+def test_add_task_integračný_positive(conn):
+    nazev_ukolu="query"
+    popis_ukolu="overenie pridania 1 novej ulohy"
 
+    vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
+    assert vysledok == True
 
-# @pytest.mark.add
-# def test_add_task_negative(conn):
-#     nazev_ukolu = "Ukol2"
-#     popis_ukolu = ""
-#     with pytest.raises(ValueError):
-#         add_task_into_db(conn,nazev_ukolu, popis_ukolu)
-#     #kontrola
-#     cursor = conn.cursor(pymysql.cursors.DictCursor)
-#     cursor.execute(
-#         "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
-#         ("Ukol2",)
-#     ) 
-#     result = cursor.fetchone()
-#     if result is None:
-#         print("✅ Ocavany vysledok je neulozenie ulohy, pretoze vyplnenie pola pre nazov a popis su povinne")
-#     cursor.close()
+    zoznam = get_all_tasks_from_db(conn)
 
-#     assert result is None, f"❌ ocekavano None, ve skutecnosti {result}"
+    for task in zoznam:
+        if task["nazev"] == nazev_ukolu:
+            print(task)
 
-
-# if result is None:
-#         print("✅ Uloha sa spravne neulozila, overenie povinych vstupov")
-
-
-
-
-# @pytest.mark.add
-# def test_add_task_positive(conn, create_table): 
-#     add_task_into_sql(conn,nazev_ukolu="ulozenie ulohy do tabulky", popis_ukolu="overenie, ze test vytvori ulohu v tabulke")
     
-#     cursor = conn.cursor(pymysql.cursors.DictCursor)
-#     cursor.execute(# overime, ci tam je
-#         "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
-#         ("ulozenie ulohy do tabulky",)
-#     ) 
-#     result = cursor.fetchone()
-#     print(result)
-#     print("✅ Uloha sa uklada podla ocakavnia")
-#     cursor.close()
-
-#     assert result["nazev"] == "ulozenie ulohy do tabulky"
-#     assert result["popis"] == "overenie, ze test vytvori ulohu v tabulke"
-#     assert result is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
-
-# @pytest.mark.add
-# def test_add_task_negative(conn,create_table):
-
-#     with pytest.raises(ValueError):
-
-#         add_task_into_sql(conn,nazev_ukolu="Ukol 2", popis_ukolu="")
-
-#     cursor = conn.cursor(pymysql.cursors.DictCursor)
-#     cursor.execute(
-#         "SELECT id, nazev, popis FROM Ukoly_test WHERE nazev =%s;",
-#         ("Ukol2",)
-#     ) 
-#     result = cursor.fetchone()
-#     print("✅ Ocavany je vysledok je neulozenie ulohy, pretoze vyplnenie pola pre nazov a popis su povinne")
-#     cursor.close()
-
-#     assert result is None, f"❌ocekavano None, ve skutecnosti {result}"
-
-# @pytest.mark.add
-# def test_add_task_duplicity_negative(conn,create_table):
-#     cursor = conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (id, nazev, popis) VALUES (%s, %s, %s);",
-#         (2901, "vlozenie id", "negativni test 1")
-#     )
-#     conn.commit()
+    assert task["nazev"] == "query"
+    assert task["popis"] == "overenie pridania 1 novej ulohy"
+    assert task is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
+    assert any(task["nazev"] == nazev_ukolu and task["popis"] == popis_ukolu for task in zoznam), f"❌ Úloha '{nazev_ukolu}' nebola nájdená v DB."
 
 
-#     with pytest.raises(pymysql.err.IntegrityError):
-#         cursor.execute(
-#             "INSERT INTO Ukoly_test (id, nazev, popis) VALUES (%s, %s, %s);",
-#             (2901, "duplicitne id", "negativni test 2")
-#         )
-#         conn.commit()
 
-#     if pytest.raises:
-#         print(f"✅ nepoovolene duplicitne zadanie id")
-#     cursor.close()
+#///////////////////////////////////////////////////////////////
 
 # @pytest.mark.add
 # def test_insert_invalid_data_negative(conn,create_table):
