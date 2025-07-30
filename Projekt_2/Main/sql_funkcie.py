@@ -94,10 +94,14 @@ def check_task_id(conn,vyber_id)->bool:
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
-            "SELECT id FROM Ukoly WHERE id=%s;",
+            "SELECT id FROM Ukoly_test WHERE id=%s;",
             (vyber_id,)
         )
-        return cursor.fetchone() is not None
+        result = cursor.fetchone()
+        if result is None:
+            return False
+        return True
+        
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba při ověřování ID {e}")
     finally:

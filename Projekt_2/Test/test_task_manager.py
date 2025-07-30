@@ -1,7 +1,7 @@
 import pymysql
 import pytest
 from Projekt_2.db_config import DB_CONFIG, create_connection
-from Projekt_2.Test.Task_manager_TEST_SQL import create_table_if_not_exist, add_task_into_db, update_task_status_db, delete_task_input, get_all_tasks_from_db
+from Projekt_2.Test.Task_manager_TEST_SQL import create_table_if_not_exist, add_task_into_db, update_task_status_db, delete_task_input, get_all_tasks_from_db, check_task_id
 
 @pytest.fixture(scope="session")
 def conn():
@@ -36,7 +36,7 @@ def test_add_task_unit_param_positive(conn, nazev_ukolu, popis_ukolu):
     vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
     if vysledok:
         print("podla ocakavani ulozena uloha")
-    assert vysledok, "❌ Chyba: Úloha sa neuložila, aj keď vstupy boli platné."
+    assert vysledok == True, "❌ Chyba: Úloha sa neuložila, aj keď vstupy boli platné."
 
  # skontrolujem, ze sa uloha ulozila
     cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -54,13 +54,14 @@ def test_add_task_unit_param_positive(conn, nazev_ukolu, popis_ukolu):
         for task in new_task), f"❌ Úloha '{nazev_ukolu}' sa nenašla medzi výsledkami."
 
 
+
 @pytest.mark.parametrize("nazev_ukolu, popis_ukolu", [
     ("", "Platný popis"),          # prázdny názov
     ("   ", "Platný popis"),       # len medzery v názve
     ("Platný název", ""),          # prázdny popis
     ("Platný název", "   "),       # len medzery v popise
     ("", ""),                      # oba prázdne
-    ("   ", "   "),                # oba whitespace
+    ("   ", "   ")                 # oba whitespace
 ])
 @pytest.mark.add
 def test_add_task_unit_param_negative(conn, nazev_ukolu, popis_ukolu):
@@ -79,22 +80,20 @@ def test_add_task_unit_param_negative(conn, nazev_ukolu, popis_ukolu):
 
     assert result is None, f"❌ ocekavano None, ve skutecnosti {result}"
 
-
-
 @pytest.mark.add
-def test_add_task_unit_positive(conn):
-    nazev_ukolu="xyz"
-    popis_ukolu="overenie pridania ulohy"
+def test_add_task_invalid_data_negative(conn):
+    cursor=conn.cursor()
 
-    vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
-    assert vysledok == True
-
+    with pytest.raises(pymysql.err.DataError,  match="Data too long for column"):
+        cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES (%s, %s)", ("a" * 101, "vlozenie retazca o dlzke nad povoleny vstup" * 100))
+        conn.commit()
+        cursor.close()
 
 
 @pytest.mark.add
 def test_add_task_integračný_positive(conn):
-    nazev_ukolu="query"
-    popis_ukolu="overenie pridania 1 novej ulohy"
+    nazev_ukolu="integracni test"
+    popis_ukolu="overenie add_task pouzitim oboch funkcii"
 
     vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
     assert vysledok == True
@@ -105,18 +104,18 @@ def test_add_task_integračný_positive(conn):
         if task["nazev"] == nazev_ukolu:
             print(task)
 
-    
-    assert task["nazev"] == "query"
-    assert task["popis"] == "overenie pridania 1 novej ulohy"
+    assert task["nazev"] == "integracni test"
+    assert task["popis"] == "overenie add_task pouzitim oboch funkcii"
     assert task is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
     assert any(task["nazev"] == nazev_ukolu and task["popis"] == popis_ukolu for task in zoznam), f"❌ Úloha '{nazev_ukolu}' nebola nájdená v DB."
 
 #------ UPDATE UKOLU
-
-
+@pytest.mark.parametrize("novy_stav", [
+    ("Probíhá"),          
+    ("Hotovo")
+])
 @pytest.mark.update
-def test_update_task_status_db_positive(conn):
-    #vytvorenie ulohy, ziskanie id
+def test_update_task_status_db_positive(conn, novy_stav):
     cursor=conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
@@ -127,16 +126,19 @@ def test_update_task_status_db_positive(conn):
     cursor.close()
 
     # zavolame funkciu, pouzijeme nove id, zmenime stav spravnou hodnotou. 
-    result = update_task_status_db(conn, vyber_id=nove_id, novy_stav="Probíhá")
+    result = update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
     assert result["id"] == nove_id
-    assert result["stav"] == "Probíhá"
-    assert result is not None, "Ocakavame novu updatovanu ulohu, ale vysledok nenalezen"
+    assert result["stav"] == novy_stav
     assert result["nazev"] == "ukol pro update"
+    assert result is not None, "Ocakavame novu updatovanu ulohu, ale vysledok nenalezen"
 
 
-
-def test_update_task_status_db_negative(conn):
-    #vytvorenie ulohy, ziskanie id
+@pytest.mark.parametrize("novy_stav", [
+    ("Rozpracované "),       
+    (1),
+    ("")
+])
+def test_update_task_status_db_negative(conn,novy_stav):
     cursor=conn.cursor()
     cursor.execute(
         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update 2', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
@@ -148,7 +150,7 @@ def test_update_task_status_db_negative(conn):
 
     # zavolame funkciu, pouzijeme nove id, zmenime stav na neplatnu hodnotou - raise error
     with pytest.raises(ValueError, match="Neplatný stav."):
-        update_task_status_db(conn, vyber_id=nove_id, novy_stav="rozbehnute")
+        update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
     
 
     # Overenie, že sa stav naozaj nezmenil
@@ -160,194 +162,61 @@ def test_update_task_status_db_negative(conn):
     updated_task = cursor.fetchone()
     cursor.close()
 
-    assert updated_task["stav"] != "rozbehnute", "Stav by sa nemal zmeniť na neplatnú hodnotu."
+    assert updated_task["stav"] != novy_stav, "Stav by sa nemal zmeniť na neplatnú hodnotu, moze mat len Hotovo/Probíhá."
    
 
-
-#a este aby mi to vratilo false / zadam nespravne id, spravnu hodnotu stavu a pri ulozeni mi vyhodi false
-
 @pytest.mark.update
-def test_update_task_id_negative(conn):
-
+def test_update_task_status_id_negative(conn):
+    #dobry stav, zle id
     novy_stav = "Probíhá"
     vyber_id = -1
-
     result = update_task_status_db(conn, vyber_id, novy_stav)
     
     assert result is None, f"❌ Očakávané None, ale hlasi {result}"
 
+# CHECK TASK ID PRI UPDATE
+@pytest.mark.update
+def test_check_task_id_positive(conn):
+    cursor=conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro get task id', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
+        )
+    conn.commit()
+        
+    nove_id = cursor.lastrowid
+    cursor.close()
+
+    result = check_task_id(conn,nove_id)
+    if result:
+        print(f"✅ nove_id vlozenej ulohy je: {nove_id}")
+
+    assert result == True, f"❌ Očakávané ID {nove_id}, ale neznama chyba"
+
+
+
+@pytest.mark.parametrize("vyber_id", [
+    (0),          
+    (-1),       
+    (99999)
+])
+@pytest.mark.update
+def test_check_task_id_negative(conn,vyber_id):
+
+    result = check_task_id(conn,vyber_id)
+    if result is False:
+        print("spravne False pre neexistujuce id")
+
+    assert result == False
 
 
 
 #///////////////////////////////////////////////////////////////
 
-# @pytest.mark.add
-# def test_insert_invalid_data_negative(conn,create_table):
-#     cursor=conn.cursor()
-
-#     with pytest.raises(pymysql.err.DataError,  match="Data too long for column"):
-#         cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES (%s, %s)", ('a' * 101, 'vlozenie retazca o dlzke nad povoleny vstup'))
-#         conn.commit()
-
-#         cursor.close()
-
-## aktualizovat ukol: mam funkciu update_task_status_db(conn, vyber_id, novy_stav)-> a pripadne check_task_id()->bool
-## povoleny vstup, nepovoleny vstup, a bud sa to zapise alebo je raise.
-## check task id - positive a negative
 
 
 
-# #------------- testy na AKTUALIZOVAT UKOL -------
-# @pytest.mark.update
-# def test_update_data_positive(conn,create_table):
-    
-#     cursor = conn.cursor()
-#     cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES ('update ukolu', 'funkcia skusa spravnu aktualizaciu tabulky');")
-#     conn.commit()
-
-#     cursor.execute("UPDATE Ukoly_test SET stav = 'Hotovo' WHERE nazev = 'update ukolu';")
-#     conn.commit()
-
-#     cursor.execute("SELECT * FROM Ukoly_test WHERE nazev = 'update ukolu';")
-#     result = cursor.fetchone()
-#     cursor.close()
-#     print(result)
-#     assert result[3] == "Hotovo", "Stav nebyl správně aktualizován."
-
-#pouziem cast
-#  @pytest.mark.update
-# def test_get_task_id_positive(conn,create_table):
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro get task id', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
-#         )
-#     conn.commit()
-        
-#     nove_id = cursor.lastrowid
-#     cursor.close()
-
-#     if nove_id:
-#         print(f"✅ nove_id vlozenej ulohy je: {nove_id}")
-
-#     result = get_task_id(conn, nove_id)
-#     assert result == nove_id, f"❌ Očakávané ID {nove_id}, ale vrátené: {result}"
-
-# @pytest.mark.update
-# def test_get_task_id_negative(conn,create_table):
-#     neexistujuce_id = 999999
-
-#     result = get_task_id(conn, neexistujuce_id)
-#     assert result is None
-
-    # cursor=conn.cursor()
-    # cursor.execute(
-    #     "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pre update', 'pre: test_update_task_id_negative invalid id, valid stav');"
-    #     )
-    # conn.commit()
-    # new_task = cursor.fetchone()
-
-# @pytest.mark.update
-# def test_get_task_id_2_negative(conn,create_table):
-#     cursor = conn.cursor(pymysql.cursors.DictCursor) 
-#     cursor.execute("SELECT id FROM Ukoly_test ORDER BY id DESC LIMIT 1;")
-#     max_id = cursor.fetchone()
-#     cursor.close()
-     
-#     if max_id:
-#         vyber = max_id["id"]
-#     else:
-#         vyber = 0
-
-#     up_max_id = vyber + 1000
-
-#     result = get_task_id(conn, up_max_id)
-#     if result is None:
-#         print(f"✅ Zadane id: {up_max_id} neexistuje podla ocakavania")
-
-#     assert result is None, f"❌ Očakávané 'None' pre ID {max_id}, ale vrátené: {result}"
 
 
-# @pytest.mark.update
-# def test_kontrola_id_status_positive(conn,create_table): #funkcia v kode vracia True ak sa nachazda v tabulke a  false ak nenajde take id
-
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pre kontrolu id statusu', 'vytvorenie ulohy, aby sme zistili jej id, a aby zoznam nidy nebol prazdny');"
-#         )
-#     conn.commit()
-        
-#     nove_id = cursor.lastrowid  
-#     cursor.close()
-
-#     result = kontrola_id_status(conn, nove_id)
-
-#     assert result is True, f"❌ Očakávané True pre existujúce ID {nove_id}, vrátené: {result}"
-
-# @pytest.mark.update
-# def test_kontrola_id_status_negative(conn,create_table):
-#     neexistujuce_id= -1
-#     result = kontrola_id_status(conn, neexistujuce_id)
-
-#     assert result is False, f"❌ Očakávané False pre zaporne ID, vrátené: {result}"
-
-# @pytest.mark.update
-# def test_update_task_status_get_id_positive(conn,create_table):
-#     zadanie_stavu = "Probíhá"
-
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pre kontrolu update ulohy', 'vytvorenie ulohy, aby sme zistili jej id, a ci ju funkcia vyhodnoti spravne podla ocakavania');"
-#         )
-#     conn.commit()
-        
-#     nove_id = cursor.lastrowid  
-
-#     result = update_task_status (conn, nove_id, zadanie_stavu)
-    
-#     assert result is True, f"❌ Očakávané True, zadali sme povoleny stav, hlasi {result}"
-
-# @pytest.mark.update  
-# def test_update_task_status_get_id_positive(conn,create_table):
-#     zadanie_stavu = "Hotovo"
-
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pre kontrolu id statusu', 'vytvorenie ulohy, aby sme zistili jej id, pre aktualizaciu stavu');"
-#         )
-#     conn.commit()
-        
-#     nove_id = cursor.lastrowid
-
-#     result = update_task_status (conn, nove_id, zadanie_stavu)
-#     print(result)
-#     assert result is True, f"❌ Očakávané True, zadali sme povoleny stav, hlasi {result}"
-
-#     cursor = conn.cursor()
-#     cursor.execute(
-#     "SELECT id, nazev, stav FROM Ukoly_test WHERE id=%s;",
-#     (nove_id,)
-#     )
-#     skuska = cursor.fetchone()
-#     print(skuska)
-
-# @pytest.mark.update
-# def test_update_task_status_get_id_negative(conn,create_table):
-#     zadanie_stavu = "Nevim"
-
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pre kontrolu id statusu 2', 'vytvorenie ulohy, aby sme zistili jej id, pre negativne testovanie');"
-#         )
-#     conn.commit()
-        
-#     nove_id = cursor.lastrowid
-#     cursor.close()
-
-#     with pytest.raises(ValueError, match="Neplatný stav úkolu"):
-#         update_task_status (conn, nove_id, zadanie_stavu)
-        
-    
-#     # poznamka pre mna: assert sa nepouzije, lebo funkcia nema co vratit, vyhodi vynimnku
 
 # # ------------- testy na ODSTRANENIE UKOLU -------
 # @pytest.mark.delete
