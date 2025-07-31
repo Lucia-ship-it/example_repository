@@ -1,5 +1,8 @@
 # spustenie: example_repository % python -m Projekt_2.Main.Task_manager_SQL
 
+# spustenie: python -m Projekt_2.Test.Task_manager_TEST_SQL
+
+rozdiel medzi tuple a seznam je ten, ze tuple ma okolo seba ()
 ----------------✅ Modulárne programovanie + testovateľnosť-------------
 instalacia venv a pip
 instalacia pytest pip3 install -U pytest
@@ -222,3 +225,12 @@ aj toto je v poriadku test
 #     assert new_task[0] == nazev_ukolu, f"❌ Necakana chyba pri spravnom zadani vstupov"
 #     assert new_task[0] == "ukol pro input"
 #     #0 lebo V  dotaze je explicitne vybraty len jeden stĺpec: nazev.
+
+osetrenie fixture:
+Prečo musíš conn uviesť v parametri testu
+Hlavný dôvod je, že pytest hľadá fixtures, ktoré sú potrebné pre spustenie každého testu, na základe parametrov v hlavičke testovacej funkcie. Ak tvoja testovacia funkcia vyžaduje conn, musíš ju uviesť priamo v jej parametri, aj keď iná fixture (napr. set_up_test) tiež používa conn.
+
+Predstav si to takto: set_up_test je "funkcia", ktorá na svoje spustenie potrebuje "argument" conn. 
+
+preto musim v testoch volat obe
+def test_add_task_unit_param_positive(conn, set_up_test, nazev_ukolu, popis_ukolu):
