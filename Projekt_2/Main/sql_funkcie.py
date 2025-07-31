@@ -94,7 +94,7 @@ def check_task_id(conn,vyber_id)->bool:
     try:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(
-            "SELECT id FROM Ukoly_test WHERE id=%s;",
+            "SELECT id FROM Ukoly WHERE id=%s;",
             (vyber_id,)
         )
         result = cursor.fetchone()
@@ -141,11 +141,16 @@ def update_task_status_db(conn, vyber_id, novy_stav):
 
 # 7. ZMAZANIE ULOHY 
 def delete_task_by_id(conn, task_id):
+  
     try:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly WHERE id=%s;", (task_id,))
         conn.commit()
-        return cursor.rowcount > 0 
+
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba při mazání úkolu: {e}")
     finally:
