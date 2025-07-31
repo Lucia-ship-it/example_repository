@@ -238,7 +238,13 @@ def delete_task_by_id(conn, task_id):
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly_test WHERE id=%s;", (task_id,))
         conn.commit()
-        return cursor.rowcount > 0 
+        
+
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba při mazání úkolu: {e}")
     finally:
