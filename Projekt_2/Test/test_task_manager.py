@@ -39,7 +39,6 @@ def set_up_test(conn):
     
 
     # Teardown 
-    cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS Ukoly_test;")
     conn.commit()
     print("\nTabuľka 'Ukoly_test' bola zmazaná.")
