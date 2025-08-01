@@ -99,208 +99,208 @@ def test_add_task_unit_param_negative(conn, set_up_test, nazev_ukolu, popis_ukol
 
     assert result is None, f"❌ ocekavano None, ve skutecnosti {result}"
 
-# @pytest.mark.add
-# def test_add_task_invalid_data_negative(conn):
-#     cursor=conn.cursor()
+@pytest.mark.add
+def test_add_task_invalid_data_negative(conn,set_up_test):
+    cursor=conn.cursor()
 
-#     with pytest.raises(pymysql.err.DataError,  match="Data too long for column"):
-#         cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES (%s, %s)", ("a" * 101, "vlozenie retazca o dlzke nad povoleny vstup" * 100))
-#         conn.commit()
-#         cursor.close()
-
-
-# @pytest.mark.add
-# def test_add_task_integračný_positive(conn):
-#     nazev_ukolu="integracni test"
-#     popis_ukolu="overenie add_task pouzitim oboch funkcii"
-
-#     vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
-#     assert vysledok == True
-
-#     zoznam = get_all_tasks_from_db(conn)
-
-#     for task in zoznam:
-#         if task["nazev"] == nazev_ukolu:
-#             print(task)
-
-#     assert task["nazev"] == "integracni test"
-#     assert task["popis"] == "overenie add_task pouzitim oboch funkcii"
-#     assert task is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
-#     assert any(task["nazev"] == nazev_ukolu and task["popis"] == popis_ukolu for task in zoznam), f"❌ Úloha '{nazev_ukolu}' nebola nájdená v DB."
+    with pytest.raises(pymysql.err.DataError,  match="Data too long for column"):
+        cursor.execute("INSERT INTO Ukoly_test (nazev, popis) VALUES (%s, %s)", ("a" * 101, "vlozenie retazca o dlzke nad povoleny vstup" * 100))
+        conn.commit()
+        cursor.close()
 
 
+@pytest.mark.add
+def test_add_task_integračný_positive(conn,set_up_test):
+    nazev_ukolu="integracni test"
+    popis_ukolu="overenie add_task pouzitim oboch funkcii"
 
-# #------ UPDATE UKOLU
-# @pytest.mark.parametrize("novy_stav", [
-#     ("Probíhá"),          
-#     ("Hotovo")
-# ])
-# @pytest.mark.update
-# def test_update_task_status_db_positive(conn, novy_stav):
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
-#         )
-#     conn.commit()
+    vysledok = add_task_into_db(conn, nazev_ukolu, popis_ukolu)
+    assert vysledok == True
+
+    zoznam = get_all_tasks_from_db(conn)
+
+    for task in zoznam:
+        if task["nazev"] == nazev_ukolu:
+            print(task)
+
+    assert task["nazev"] == "integracni test"
+    assert task["popis"] == "overenie add_task pouzitim oboch funkcii"
+    assert task is not None, f"❌ Necakana reakcia testu pri ukladani spravnych vstupov"
+    assert any(task["nazev"] == nazev_ukolu and task["popis"] == popis_ukolu for task in zoznam), f"❌ Úloha '{nazev_ukolu}' nebola nájdená v DB."
+
+
+
+#------ UPDATE UKOLU
+@pytest.mark.parametrize("novy_stav", [
+    ("Probíhá"),          
+    ("Hotovo")
+])
+@pytest.mark.update
+def test_update_task_status_db_positive(conn,set_up_test, novy_stav):
+    cursor=conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
+        )
+    conn.commit()
         
-#     nove_id = cursor.lastrowid
-#     cursor.close()
+    nove_id = cursor.lastrowid
+    cursor.close()
 
-#     # zavolame funkciu, pouzijeme nove id, zmenime stav spravnou hodnotou. 
-#     result = update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
+    # zavolame funkciu, pouzijeme nove id, zmenime stav spravnou hodnotou. 
+    result = update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
 
-#     assert result["id"] == nove_id
-#     assert result["stav"] == novy_stav
-#     assert result["nazev"] == "ukol pro update"
-#     assert result is not None, "Ocakavame novu updatovanu ulohu, ale vysledok nenalezen"
+    assert result["id"] == nove_id
+    assert result["stav"] == novy_stav
+    assert result["nazev"] == "ukol pro update"
+    assert result is not None, "Ocakavame novu updatovanu ulohu, ale vysledok nenalezen"
 
 
-# @pytest.mark.parametrize("novy_stav", [
-#     ("Rozpracované "),       
-#     (1),
-#     ("")
-# ])
-# def test_update_task_status_db_negative(conn,novy_stav):
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update 2', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
-#         )
-#     conn.commit()
+@pytest.mark.parametrize("novy_stav", [
+    ("Rozpracované "),       
+    (1),
+    ("")
+])
+def test_update_task_status_db_negative(conn, set_up_test, novy_stav):
+    cursor=conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro update 2', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
+        )
+    conn.commit()
         
-#     nove_id = cursor.lastrowid
-#     cursor.close()
+    nove_id = cursor.lastrowid
+    cursor.close()
 
-#     # zavolame funkciu, pouzijeme nove id, zmenime stav na neplatnu hodnotou - raise error
-#     with pytest.raises(ValueError, match="Neplatný stav."):
-#         update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
+    # zavolame funkciu, pouzijeme nove id, zmenime stav na neplatnu hodnotou - raise error
+    with pytest.raises(ValueError, match="Neplatný stav."):
+        update_task_status_db(conn, vyber_id=nove_id, novy_stav=novy_stav)
 
-#     # Overenie, že sa stav naozaj nezmenil
-#     cursor = conn.cursor(pymysql.cursors.DictCursor)
-#     cursor.execute(
-#         "SELECT nazev, stav FROM Ukoly_test WHERE id = %s;",
-#         (nove_id,)
-#     )
-#     updated_task = cursor.fetchone()
-#     cursor.close()
+    # Overenie, že sa stav naozaj nezmenil
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(
+        "SELECT nazev, stav FROM Ukoly_test WHERE id = %s;",
+        (nove_id,)
+    )
+    updated_task = cursor.fetchone()
+    cursor.close()
 
-#     assert updated_task["stav"] != novy_stav, "Stav by sa nemal zmeniť na neplatnú hodnotu, moze mat len Hotovo/Probíhá."
+    assert updated_task["stav"] != novy_stav, "Stav by sa nemal zmeniť na neplatnú hodnotu, moze mat len Hotovo/Probíhá."
    
 
-# @pytest.mark.update
-# def test_update_task_status_id_negative(conn):
-#     #dobry stav, zle id
-#     novy_stav = "Probíhá"
-#     vyber_id = -1
-#     result = update_task_status_db(conn, vyber_id, novy_stav)
+@pytest.mark.update
+def test_update_task_status_id_negative(conn, set_up_test):
+    #dobry stav, zle id
+    novy_stav = "Probíhá"
+    vyber_id = -1
+    result = update_task_status_db(conn, vyber_id, novy_stav)
     
-#     assert result is None, f"❌ Očakávané None, ale hlasi {result}"
+    assert result is None, f"❌ Očakávané None, ale hlasi {result}"
 
 
-# # CHECK TASK ID PRI UPDATE
-# @pytest.mark.update
-# def test_check_task_id_positive(conn):
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro get task id', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
-#         )
-#     conn.commit()
+# CHECK TASK ID PRI UPDATE
+@pytest.mark.update
+def test_check_task_id_positive(conn, set_up_test):
+    cursor=conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro get task id', 'vytvorenie ulohy, aby zoznam nikdy nebol prazdny');"
+        )
+    conn.commit()
         
-#     nove_id = cursor.lastrowid
-#     cursor.close()
+    nove_id = cursor.lastrowid
+    cursor.close()
 
-#     result = check_task_id(conn,nove_id)
-#     if result:
-#         print(f"✅ nove_id vlozenej ulohy je: {nove_id}")
+    result = check_task_id(conn,nove_id)
+    if result:
+        print(f"✅ nove_id vlozenej ulohy je: {nove_id}")
 
-#     assert result == True, f"❌ Očakávané ID {nove_id}, ale neznama chyba"
-
-
-
-# @pytest.mark.parametrize("vyber_id", [
-#     (0),          
-#     (-1),       
-#     (99999)
-# ])
-# @pytest.mark.update
-# def test_check_task_id_negative(conn,vyber_id):
-
-#     result = check_task_id(conn,vyber_id=vyber_id)
-#     if result is False:
-#         print("spravne False pre neexistujuce id")
-
-#     assert result == False
-
-
-# #------ DELETE UKOLU
-# @pytest.mark.delete
-# def test_delete_task_positive(conn):
-#     cursor=conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('mazanie ulohy', 'uhola pre zmazanie podla id');"
-#     )
-#     conn.commit()
-#     nove_id = cursor.lastrowid
-
-#     result = delete_task_by_id(conn, task_id=nove_id)
-
-#     assert result == True
-
-
-# @pytest.mark.parametrize("not_exist_id", [
-#     (0),
-#     (-1),
-#     (999999)                                
-# ])
-# @pytest.mark.delete
-# def test_delete_task_negative(conn, not_exist_id):
-
-
-#     result = delete_task_by_id(conn, task_id=not_exist_id)
-#     assert result == False, f"Ocakavame false, vysledok: {result}"
+    assert result == True, f"❌ Očakávané ID {nove_id}, ale neznama chyba"
 
 
 
-# # # ------------- NAVIAC test na ZOBRAZIT UKOLY ------- 
-# # def test_get_all_tasks_positive(conn):
-# #     cursor = conn.cursor()
-# #     cursor.execute(
-# #         "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro seznam', 'vytvoreni ukol aby seznam nebyl nikdy prazdny');"
-# #     )
-# #     conn.commit()
-# #     cursor.close()
+@pytest.mark.parametrize("vyber_id", [
+    (0),          
+    (-1),       
+    (99999)
+])
+@pytest.mark.update
+def test_check_task_id_negative(conn, set_up_test, vyber_id):
 
-# #     tasks = get_all_tasks_from_db(conn)
+    result = check_task_id(conn,vyber_id=vyber_id)
+    if result is False:
+        print("spravne False pre neexistujuce id")
 
-# #     # overíme, že výsledok je list a nie je prázdny
-# #     assert isinstance(tasks, list), "Očakávame, že get_all_tasks_from_db vráti list"
-# #     assert len(tasks) > 0, "Očakávame aspoň jeden záznam v zozname"
-
-# # # skuska
-# #     cursor = conn.cursor(pymysql.cursors.DictCursor)
-# #     cursor.execute(
-# #         "SELECT * FROM Ukoly_test WHERE nazev = %s;",
-# #         ('ukol pro seznam',)
-# #     )
-# #     skuska = cursor.fetchone()
-# #     cursor.close()
-
-# #     assert skuska is not None, "Očakávame, že záznam v tabuľke existuje"
-# #     assert skuska["nazev"] == "ukol pro seznam"
+    assert result == False
 
 
-# #     assert "id" in tasks[0]
-# #     assert "nazev" in tasks[0]
+#------ DELETE UKOLU
+@pytest.mark.delete
+def test_delete_task_positive(conn, set_up_test):
+    cursor=conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('mazanie ulohy', 'uhola pre zmazanie podla id');"
+    )
+    conn.commit()
+    nove_id = cursor.lastrowid
+
+    result = delete_task_by_id(conn, task_id=nove_id)
+
+    assert result == True
+
+
+@pytest.mark.parametrize("not_exist_id", [
+    (0),
+    (-1),
+    (999999)                                
+])
+@pytest.mark.delete
+def test_delete_task_negative(conn, set_up_test, not_exist_id):
+
+
+    result = delete_task_by_id(conn, task_id=not_exist_id)
+    assert result == False, f"Ocakavame false, vysledok: {result}"
 
 
 
-# # def test_get_all_tasks_negative(conn):
-# #     cursor = conn.cursor()
-# #     cursor.execute("DELETE FROM Ukoly_test;")
-# #     conn.commit()
-# #     cursor.close()
+# ------------- NAVIAC test na ZOBRAZIT UKOLY ------- 
+def test_get_all_tasks_positive(conn, set_up_test):
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO Ukoly_test (nazev, popis) VALUES ('ukol pro seznam', 'vytvoreni ukol aby seznam nebyl nikdy prazdny');"
+    )
+    conn.commit()
+    cursor.close()
 
-# #     tasks = get_all_tasks_from_db(conn)
-# #     if tasks is None:
-# #         print("✅ Zoznam je prazdny podla ocakavania")
+    tasks = get_all_tasks_from_db(conn)
 
-# #     assert not tasks, f"Ocakavame prazdny zoznam, ale {tasks}"
+    # overíme, že výsledok je list a nie je prázdny
+    assert isinstance(tasks, list), "Očakávame, že get_all_tasks_from_db vráti list"
+    assert len(tasks) > 0, "Očakávame aspoň jeden záznam v zozname"
+
+# skuska
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(
+        "SELECT * FROM Ukoly_test WHERE nazev = %s;",
+        ('ukol pro seznam',)
+    )
+    skuska = cursor.fetchone()
+    cursor.close()
+
+    assert skuska is not None, "Očakávame, že záznam v tabuľke existuje"
+    assert skuska["nazev"] == "ukol pro seznam"
+
+
+    assert "id" in tasks[0]
+    assert "nazev" in tasks[0]
+
+
+
+def test_get_all_tasks_negative(conn, set_up_test):
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Ukoly_test;")
+    conn.commit()
+    cursor.close()
+
+    tasks = get_all_tasks_from_db(conn)
+    if tasks is None:
+        print("✅ Zoznam je prazdny podla ocakavania")
+
+    assert not tasks, f"Ocakavame prazdny zoznam, ale {tasks}"
