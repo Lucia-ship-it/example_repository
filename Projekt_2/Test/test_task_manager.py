@@ -163,6 +163,7 @@ def test_update_task_status_db_positive(conn,set_up_test, novy_stav):
     (1),
     ("")
 ])
+@pytest.mark.update
 def test_update_task_status_db_negative(conn, set_up_test, novy_stav):
     cursor=conn.cursor()
     cursor.execute(
