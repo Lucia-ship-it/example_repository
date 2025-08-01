@@ -1,7 +1,7 @@
 import pymysql
 import pytest
 from Projekt_2.db_config import DB_CONFIG
-from Projekt_2.Test.Task_manager_TEST_SQL import add_task_into_db, update_task_status_db, delete_task_by_id, get_all_tasks_from_db, check_task_id
+from Projekt_2.Test.Task_manager_TEST_SQL import add_task_into_db, update_task_status_db, delete_task_from_db, get_all_tasks_from_db, check_task_id
 
 
 @pytest.fixture(scope="session")
@@ -242,7 +242,7 @@ def test_delete_task_positive(conn, set_up_test):
     conn.commit()
     nove_id = cursor.lastrowid
 
-    result = delete_task_by_id(conn, task_id=nove_id)
+    result = delete_task_from_db(conn, task_id=nove_id)
 
     assert result == True
 
@@ -256,7 +256,7 @@ def test_delete_task_positive(conn, set_up_test):
 def test_delete_task_negative(conn, set_up_test, not_exist_id):
 
 
-    result = delete_task_by_id(conn, task_id=not_exist_id)
+    result = delete_task_from_db(conn, task_id=not_exist_id)
     assert result == False, f"Ocakavame false, vysledok: {result}"
 
 

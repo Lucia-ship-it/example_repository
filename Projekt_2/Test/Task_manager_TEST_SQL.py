@@ -202,7 +202,7 @@ def update_task_status_input(conn, tasks_all):
     try:
 
         if not tasks_all:
-            print("Není co aktualizovat.\n")
+            print("📭 Není co aktualizovat.\n")
             return
         
         print("\n📋 Seznam všech úkolů:")
@@ -236,7 +236,7 @@ def update_task_status_input(conn, tasks_all):
         
 #---------------------7. FUNKCIA ZMAZANIE ULOHY -------------------
   
-def delete_task_by_id(conn, task_id):
+def delete_task_from_db(conn, task_id):
   
     try:
         cursor = conn.cursor()
@@ -259,7 +259,7 @@ def delete_task_by_id(conn, task_id):
 def delete_task_input(conn, tasks_all):
     try:
         if not tasks_all:
-            print("Není co mazať.\n")
+            print("📭 Není co mazat.\n")
             return
       
         print("\n📋 Seznam všech úkolů:")
@@ -279,7 +279,7 @@ def delete_task_input(conn, tasks_all):
                     print("↩️  Zrušeno uživatelem.")
                     return
 
-                if delete_task_by_id(conn, vyber_id):
+                if delete_task_from_db(conn, vyber_id):
                     print("✅ Úkol byl odstraněn.")
                 else:
                     print("❌ Mazání se nezdařilo.")
@@ -290,7 +290,7 @@ def delete_task_input(conn, tasks_all):
         print(f"❌ {e}")
 
 
-#=======FUNKCIA HLAVNEHO MENU========
+#---------------------3. FUNKCIA HLAVNEHO MENU ---------------------
 def hlavni_menu(conn):
     tasks_all = get_all_tasks_from_db(conn)
 
