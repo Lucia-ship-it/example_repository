@@ -1,6 +1,6 @@
 import pymysql
 from datetime import date
-from Projekt_2.Main.sql_funkcie import *
+from Projekt_2.Main.sql_funkcie import * # db_config
 
 
 #-----------------UZIVATELSKE FUNKCIE-----------------
@@ -43,6 +43,10 @@ def show_all_tasks_ui(conn, tasks_all):
                     print("\n📌 Seznam nedokončených úkolů:")
                     for data in data_nedokoncene:
                         print(data)
+                elif not data_nedokoncene:
+                    print("🎉 Všechny úkoly jsou dokončeny.")
+                    return  
+
             else:
                 print("↩️  Návrat bez filtrování.")
 
@@ -55,7 +59,7 @@ def update_task_status_input(conn, tasks_all):
     try:
 
         if not tasks_all:
-            print("Není co aktualizovat.\n")
+            print("📭 Není co aktualizovat.\n")
             return
         
         print("\n📋 Seznam všech úkolů:")
@@ -86,14 +90,13 @@ def update_task_status_input(conn, tasks_all):
                 print(f"❌ {e}")  # napr. neplatný stav alebo neexistujúce ID
     except pymysql.MySQLError as e:
         print(f"❌{e}")
-        
 
 
 # 7. ZMAZANIE ULOHY 
 def delete_task_input(conn, tasks_all):
     try:
         if not tasks_all:
-            print("Není co mazať.\n")
+            print("📭 Není co mazat.\n")
             return
       
         print("\n📋 Seznam všech úkolů:")
@@ -113,7 +116,7 @@ def delete_task_input(conn, tasks_all):
                     print("↩️  Zrušeno uživatelem.")
                     return
 
-                if delete_task_by_id(conn, vyber_id):
+                if delete_task_from_db(conn, vyber_id):
                     print("✅ Úkol byl odstraněn.")
                 else:
                     print("❌ Mazání se nezdařilo.")

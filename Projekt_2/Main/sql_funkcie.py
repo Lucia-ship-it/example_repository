@@ -139,18 +139,21 @@ def update_task_status_db(conn, vyber_id, novy_stav):
     finally:
         cursor.close()
 
+
 # 7. ZMAZANIE ULOHY 
-def delete_task_by_id(conn, task_id):
+def delete_task_from_db(conn, task_id):
   
     try:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Ukoly WHERE id=%s;", (task_id,))
         conn.commit()
+        
 
         if cursor.rowcount > 0:
             return True
         else:
             return False
+
     except pymysql.MySQLError as e:
         raise RuntimeError(f"❌ Chyba při mazání úkolu: {e}")
     finally:
