@@ -133,6 +133,10 @@ def show_all_tasks_ui(conn, tasks_all):
                     print("\n📌 Seznam nedokončených úkolů:")
                     for data in data_nedokoncene:
                         print(data)
+                elif not data_nedokoncene:
+                    print("🎉 Všechny úkoly jsou dokončeny.")
+                    return  
+
             else:
                 print("↩️  Návrat bez filtrování.")
 
